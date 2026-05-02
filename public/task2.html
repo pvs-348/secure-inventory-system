@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Task 1 - Digital Signature-Based Record Authentication</title>
+  <title>Task 2 - PBFT-Style Consensus</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 
@@ -11,21 +11,20 @@
   <header class="topbar">
     <div class="header-left">
       <h1>Secure DLT-Based Inventory Management System</h1>
-      <p>Task 1: Digital Signature-Based Record Authentication</p>
+      <p>Task 2: Consensus Protocol Integration</p>
     </div>
 
     <div class="header-right">
-      <p><strong>Paramvir Singh</strong> (s4122987) </p>
-      <p><strong>Aayush Bhattarai</strong> (s1234567) </p>
+      <p><strong>Paramvir Singh</strong> (s4122987)</p>
+      <p><strong>Aayush Bhattarai</strong> (s1234567)</p>
     </div>
   </header>
 
   <main>
-    <!-- TASK 1 INPUT SECTION -->
     <section class="card">
       <h2>1. Select Originating Inventory Node</h2>
 
-      <label for="originNode">Inventory Node Performing Operation</label>
+      <label for="originNode">Inventory Node Creating Record</label>
       <select id="originNode">
         <option value="A">Inventory A</option>
         <option value="B">Inventory B</option>
@@ -34,13 +33,12 @@
       </select>
 
       <p class="hint">
-        This node creates a new inventory record with any location ID and signs it using its RSA private key. 
+        This node creates and signs the record before broadcasting it for consensus.
       </p>
     </section>
 
-    <!-- RECORD ENTRY SECTION -->
     <section class="card">
-      <h2>2. Enter the desired Inventory Record</h2>
+      <h2>2. Enter Inventory Record</h2>
 
       <div class="form-grid">
         <div>
@@ -65,16 +63,15 @@
       </div>
 
       <p class="hint">
-        This record will be converted into a message string, a big MessageInteger, signed and then verified.
+        The record is signed first, then verified by all nodes before voting.
       </p>
     </section>
 
-    <!-- TASK 1 ACTION SECTION -->
     <section class="card">
-      <h2>3. Run Task 1 Workflow</h2>
+      <h2>3. Run Consensus Workflow</h2>
 
-      <button onclick="runTask1Workflow()">
-        Generate consistent Record -> Get MessageInteger! -> Sign it! -> Verify!
+      <button onclick="runTask2FullWorkflow()">
+        Sign Record → Broadcast → Verify → Vote → Store
       </button>
 
       <button id="clearOutputBtn" onclick="clearOutput()">
@@ -82,38 +79,32 @@
       </button>
     </section>
 
-    <!-- OUTPUT SECTION -->
+    
     <section class="card">
-      <h2>4. Intermediate Computation Steps</h2>
-
-      <p class="hint">
-        Displays node, keys, record data, big MessageInteger conversion, signature, verification process and result.
-      </p>
-
-      <pre id="output">Waiting for Task 1 workflow...</pre>
+      <h2>4. Consensus Output</h2>
+      <pre id="output">Waiting for Task 2 workflow...</pre>
     </section>
 
-    <!-- CHECKLIST -->
     <section class="card">
-      <h2>5. Task 1 Demonstration Checklist</h2>
+      <h2>5. Task 2 Demonstration Checklist</h2>
 
       <ul>
-        <li>Node selected</li>
-        <li>Record entered</li>
-        <li>RSA parameters loaded</li>
-        <li>n, phi, d computed</li>
-        <li>Message generated</li>
-        <li>Big MessageInteger created</li>
-        <li>Signature created</li>
-        <li>Signature verified</li>
-        <li>Result displayed</li>
+        <li>Record created by selected inventory node</li>
+        <li>Record signed using originating node private key</li>
+        <li>Signed record broadcast to Inventory A, B, C, and D</li>
+        <li>Each node verifies using originating node public key</li>
+        <li>Each node independently votes ACCEPT or REJECT</li>
+        <li>PBFT-style 3-out-of-4 consensus rule applied</li>
+        <li>Accepted record stored in all local node records</li>
       </ul>
     </section>
   </main>
 
-  <!-- IMPORTANT: Correct script order -->
   <script src="../src/utils.js"></script>
   <script src="../src/task1.js"></script>
+  <script src="../src/InventoryNodes.js"></script>
+  <script src="../src/network.js"></script>
+  <script src="../src/task2.js"></script>
   <script src="../src/main.js"></script>
 </body>
 </html>

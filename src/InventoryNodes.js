@@ -1,27 +1,41 @@
-export class InventoryNode {
-    constructor(name, keys) {
+class InventoryNode {
+    constructor(name) {
         this.name = name;
-        this.keys = keys; // {p, q, e, d, n}
-        this.records = []; // local storage
+        this.rsa = deriveRSAKeys(name);
+        this.records = [];
     }
 
-    verifySignature(record, signature, utils) {
-        // call your RSA verify function
-        return utils.verifySignature(record, signature, this.keys);
+    verifyRecordSignature(record, signature, originNode) {
+        const message = recordToMessage(record);
+        const hash = textToBigIntHash(message);
+
+        const result = verifySignature(
+            originNode,
+            message,
+            hash,
+            signature
+        );
+
+        return result.isValid;
     }
 
     validateRecord(record) {
-        // basic sanity checks (keep simple but present)
-        if (!record) return false;
-        if (!record.itemID || !record.qty || !record.location) return false;
+        if (!record.itemId || !record.itemQty || !record.itemPrice || !record.location) {
+            return false;
+        }
+
+        if (Number(record.itemQty) <= 0 || Number(record.itemPrice) <= 0) {
+            return false;
+        }
+
         return true;
     }
 
-    vote(record, signature, utils) {
-        const sigValid = this.verifySignature(record, signature, utils);
+    vote(record, signature, originNode) {
+        const sigValid = this.verifyRecordSignature(record, signature, originNode);
         const dataValid = this.validateRecord(record);
 
-        return (sigValid && dataValid) ? "ACCEPT" : "REJECT";
+        return sigValid && dataValid ? "ACCEPT" : "REJECT";
     }
 
     storeRecord(record) {

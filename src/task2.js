@@ -1,33 +1,31 @@
-import { InventoryNode } from './node.js';
-import { InventoryNetwork } from './network.js';
-import * as utils from './utils.js';
-
-export function runTask2(record, signature, keySet) {
-
-    // create 4 nodes using given keys
+function runTask2(record, signature, originNode) {
     const nodes = [
-        new InventoryNode("A", keySet.A),
-        new InventoryNode("B", keySet.B),
-        new InventoryNode("C", keySet.C),
-        new InventoryNode("D", keySet.D)
+        new InventoryNode("A"),
+        new InventoryNode("B"),
+        new InventoryNode("C"),
+        new InventoryNode("D")
     ];
 
     const network = new InventoryNetwork(nodes);
 
-    // step 1: collect votes
-    const votes = network.broadcastAndCollectVotes(record, signature, utils);
+    const votes = network.broadcastAndCollectVotes(
+        record,
+        signature,
+        originNode
+    );
 
-    // step 2: consensus decision
-    const decision = network.reachConsensus(votes);
+    const consensus = network.reachConsensus(votes);
 
-    // step 3: store if accepted
-    if (decision === "ACCEPT") {
+    if (consensus.decision === "ACCEPT") {
         network.syncStorage(record);
     }
 
     return {
         votes,
-        decision,
-        nodes // so UI can show storage
+        decision: consensus.decision,
+        acceptCount: consensus.acceptCount,
+        rejectCount: consensus.rejectCount,
+        totalNodes: consensus.totalNodes,
+        nodes
     };
 }

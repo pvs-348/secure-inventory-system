@@ -1,3 +1,5 @@
+let lastTask1Result = null;
+
 function getRecordFromForm() {
   return {
     itemId: document.getElementById("itemId").value.trim(),
@@ -42,6 +44,12 @@ function runTask1Workflow() {
 
   try {
     const result = runTask1(selectedNode, record);
+    lastTask1Result = {
+      record,
+      signature: result.signedData.signature,
+      originNode: selectedNode
+    };
+
 
     const signed = result.signedData;
     const verify = result.verification;
@@ -110,5 +118,133 @@ function runTask1Workflow() {
     writeOutput(output);
   } catch (error) {
     writeOutput("ERROR:\n" + error.message);
+  }
+}
+
+
+
+
+// Task 2 workflow
+
+
+function runTask2Workflow() {
+  if (!lastTask1Result) {
+    writeOutput("ERROR: Run Task 1 first before Task 2.");
+    return;
+  }
+
+  try {
+    const { record, signature, originNode } = lastTask1Result;
+
+    const result = runTask2(record, signature, originNode);
+
+    let output = "";
+
+    output += "\n\nTASK 2: CONSENSUS PROTOCOL (PBFT-STYLE)\n";
+    output += "======================================================\n\n";
+
+    output += "1. BROADCASTING RECORD TO ALL INVENTORY NODES\n";
+    output += `Record: ${JSON.stringify(record)}\n\n`;
+
+    output += "2. NODE VOTING RESULTS\n";
+
+    result.votes.forEach(v => {
+      output += `Inventory ${v.node}: ${v.vote}\n`;
+    });
+
+    output += "\n3. CONSENSUS DECISION\n";
+    output += `Final Decision: ${result.decision}\n\n`;
+
+    if (result.decision === "ACCEPT") {
+      output += "4. RECORD STORED IN ALL NODES\n\n";
+
+      result.nodes.forEach(node => {
+        output += `Inventory ${node.name} Records:\n`;
+        node.getRecords().forEach((r, i) => {
+          output += `  ${i + 1}. ${JSON.stringify(r)}\n`;
+        });
+        output += "\n";
+      });
+
+    } else {
+      output += "4. RECORD REJECTED — NOT STORED\n";
+    }
+
+    writeOutput(output);
+
+  } catch (error) {
+    writeOutput("ERROR (Task 2):\n" + error.message);
+  }
+}
+
+
+
+function runTask2FullWorkflow() {
+  const selectedNode = getSelectedNode();
+  const record = getRecordFromForm();
+
+  if (!validateRecord(record)) {
+    writeOutput("ERROR: Invalid record. Fill all fields and use positive quantity/price.");
+    return;
+  }
+
+  try {
+    const task1Result = runTask1(selectedNode, record);
+
+    const signed = task1Result.signedData;
+
+    const task2Result = runTask2(
+      record,
+      signed.signature,
+      selectedNode
+    );
+
+    let output = "";
+
+    output += "TASK 2: PBFT-STYLE CONSENSUS PROTOCOL INTEGRATION\n";
+    output += "======================================================\n\n";
+
+    output += "1. RECORD CREATED AND SIGNED\n";
+    output += `Originating Node: Inventory ${selectedNode}\n`;
+    output += `Record: ${JSON.stringify(record)}\n`;
+    output += `Message: ${signed.message}\n`;
+    output += `Message Integer: ${signed.hash}\n`;
+    output += `Signature: ${signed.signature}\n\n`;
+
+    output += "2. BROADCAST TO INVENTORY NODES\n";
+    output += "Signed record broadcast to Inventory A, B, C, and D.\n\n";
+
+    output += "3. NODE VOTING RESULTS\n";
+    task2Result.votes.forEach(v => {
+      output += `Inventory ${v.node}: ${v.vote}\n`;
+    });
+
+    output += "\n4. CONSENSUS RULE\n";
+    output += "PBFT-style simplified rule: accept if at least 3 out of 4 nodes vote ACCEPT.\n";
+    output += `Accept Votes: ${task2Result.acceptCount}/${task2Result.totalNodes}\n`;
+    output += `Reject Votes: ${task2Result.rejectCount}/${task2Result.totalNodes}\n\n`;
+
+    output += "5. FINAL CONSENSUS DECISION\n";
+    output += `Decision: ${task2Result.decision}\n\n`;
+
+    if (task2Result.decision === "ACCEPT") {
+      output += "6. LOCAL STORAGE AFTER CONSENSUS\n";
+
+      task2Result.nodes.forEach(node => {
+        output += `\nInventory ${node.name} Local Records:\n`;
+
+        node.getRecords().forEach((r, index) => {
+          output += `  ${index + 1}. ${JSON.stringify(r)}\n`;
+        });
+      });
+    } else {
+      output += "6. STORAGE RESULT\n";
+      output += "Record rejected. No node storage was updated.\n";
+    }
+
+    writeOutput(output);
+
+  } catch (error) {
+    writeOutput("ERROR (Task 2):\n" + error.message);
   }
 }

@@ -1,15 +1,13 @@
-import { InventoryNode } from './node.js';
-
-export class InventoryNetwork {
+class InventoryNetwork {
     constructor(nodes) {
         this.nodes = nodes;
     }
 
-    broadcastAndCollectVotes(record, signature, utils) {
-        let votes = [];
+    broadcastAndCollectVotes(record, signature, originNode) {
+        const votes = [];
 
         for (let node of this.nodes) {
-            const vote = node.vote(record, signature, utils);
+            const vote = node.vote(record, signature, originNode);
             votes.push({ node: node.name, vote });
         }
 
@@ -18,8 +16,14 @@ export class InventoryNetwork {
 
     reachConsensus(votes) {
         const acceptCount = votes.filter(v => v.vote === "ACCEPT").length;
+        const rejectCount = votes.length - acceptCount;
 
-        return (acceptCount >= 3) ? "ACCEPT" : "REJECT";
+        return {
+            decision: acceptCount >= 3 ? "ACCEPT" : "REJECT",
+            acceptCount,
+            rejectCount,
+            totalNodes: votes.length
+        };
     }
 
     syncStorage(record) {

@@ -173,15 +173,13 @@ button:active {
   transform: translateY(0);
 }
 
-#clearOutputBtn,
-button:nth-of-type(2) {
+#clearOutputBtn {
   background: #1f2937;
   color: #ffffff;
   border: 1px solid #475569;
 }
 
-#clearOutputBtn:hover,
-button:nth-of-type(2):hover {
+#clearOutputBtn:hover {
   background: #334155;
 }
 
