@@ -1,0 +1,279 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #0b0f14;
+  color: #f8fafc;
+  padding-top: 145px;
+}
+
+header,
+.topbar {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 48px);
+  z-index: 1000;
+
+  background: rgba(2, 6, 23, 0.92);
+  color: #ffffff;
+  padding: 24px 36px;
+  border: 1px solid #38bdf8;
+  border-radius: 22px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+
+  box-shadow:
+    0 0 18px rgba(56, 189, 248, 0.35),
+    0 0 36px rgba(236, 72, 153, 0.18),
+    0 18px 45px rgba(0, 0, 0, 0.55);
+
+  backdrop-filter: blur(14px);
+}
+
+header::before,
+.topbar::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 24px;
+  border: 1px solid rgba(56, 189, 248, 0.75);
+  pointer-events: none;
+  animation: neonPulse 2.8s infinite alternate;
+}
+
+header h1 {
+  margin: 0 0 8px 0;
+  font-size: 30px;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+}
+
+header p {
+  margin: 0;
+  font-size: 16px;
+  color: #facc15;
+}
+
+.header-left h1 {
+  margin: 0 0 8px 0;
+  font-size: 30px;
+}
+
+.header-left p {
+  margin: 0;
+  color: #facc15;
+}
+
+.header-right {
+  text-align: right;
+  min-width: 280px;
+  padding-left: 24px;
+  border-left: 1px solid rgba(56, 189, 248, 0.45);
+}
+
+.header-right p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #39ff14;
+  text-shadow:
+    0 0 6px rgba(57, 255, 20, 0.75),
+    0 0 14px rgba(57, 255, 20, 0.35);
+}
+
+.header-right strong {
+  color: #ff4fd8;
+  text-shadow:
+    0 0 6px rgba(255, 79, 216, 0.8),
+    0 0 14px rgba(255, 79, 216, 0.35);
+}
+
+main {
+  max-width: 1150px;
+  margin: 28px auto;
+  padding: 0 22px;
+}
+
+.card {
+  background: #111827;
+  border: 1px solid #263244;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 22px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+}
+
+.card h2 {
+  margin-top: 0;
+  color: #ffffff;
+  font-size: 21px;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 12px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 7px;
+  color: #f8fafc;
+}
+
+select,
+input {
+  width: 100%;
+  padding: 12px 13px;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  font-size: 15px;
+  margin-bottom: 14px;
+  background: #020617;
+  color: #ffffff;
+}
+
+select:focus,
+input:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 999px;
+  background: #facc15;
+  color: #111827;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: 0.2s ease;
+}
+
+button:hover {
+  background: #fde047;
+  transform: translateY(-1px);
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.35);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+#clearOutputBtn,
+button:nth-of-type(2) {
+  background: #1f2937;
+  color: #ffffff;
+  border: 1px solid #475569;
+}
+
+#clearOutputBtn:hover,
+button:nth-of-type(2):hover {
+  background: #334155;
+}
+
+.hint {
+  color: #cbd5e1;
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+pre {
+  background: #020617;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+  padding: 20px;
+  border-radius: 14px;
+  min-height: 280px;
+  max-height: 540px;
+  overflow: auto;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+ul {
+  margin-bottom: 0;
+  padding-left: 22px;
+}
+
+li {
+  margin-bottom: 9px;
+  color: #e5e7eb;
+}
+
+li::marker {
+  color: #facc15;
+}
+
+::selection {
+  background: #38bdf8;
+  color: #020617;
+}
+
+@keyframes neonPulse {
+  from {
+    box-shadow:
+      0 0 8px rgba(56, 189, 248, 0.5),
+      0 0 18px rgba(56, 189, 248, 0.25);
+  }
+
+  to {
+    box-shadow:
+      0 0 18px rgba(56, 189, 248, 0.95),
+      0 0 34px rgba(56, 189, 248, 0.45);
+  }
+}
+
+@media (max-width: 800px) {
+  body {
+    padding-top: 210px;
+  }
+
+  header,
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    top: 12px;
+    width: calc(100% - 24px);
+    padding: 22px;
+  }
+
+  header h1,
+  .header-left h1 {
+    font-size: 24px;
+  }
+
+  .header-right {
+    text-align: left;
+    border-left: none;
+    border-top: 1px solid rgba(56, 189, 248, 0.45);
+    padding-left: 0;
+    padding-top: 12px;
+    min-width: auto;
+    width: 100%;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}

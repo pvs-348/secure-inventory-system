@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DLT Inventory System</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header>
+    <h1>Secure DLT-Based Inventory System</h1>
+    <p>Select a task to demonstrate</p>
+  </header>
+
+  <main style="text-align: center; margin-top: 80px;">
+
+    <h2>Choose Task</h2>
+
+    <div style="margin-top: 30px;">
+      <button onclick="goToTask('task1.html')">Task 1: Digital Signature</button>
+      <button onclick="goToTask('task2.html')">Task 2: Consensus</button>
+      <button onclick="goToTask('task3.html')">Task 3: Query & Multi-Signature</button>
+    </div>
+
+  </main>
+
+  <script>
+    function goToTask(page) {
+      window.location.href = page;
+    }
+  </script>
+</body>
+</html>

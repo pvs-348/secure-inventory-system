@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task 1 - Digital Signature-Based Record Authentication</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="header-left">
+      <h1>Secure DLT-Based Inventory Management System</h1>
+      <p>Task 1: Digital Signature-Based Record Authentication</p>
+    </div>
+
+    <div class="header-right">
+      <p><strong>Paramvir Singh</strong> (s4122987) </p>
+      <p><strong>Aayush Bhattarai</strong> (s1234567) </p>
+    </div>
+  </header>
+
+  <main>
+    <!-- TASK 1 INPUT SECTION -->
+    <section class="card">
+      <h2>1. Select Originating Inventory Node</h2>
+
+      <label for="originNode">Inventory Node Performing Operation</label>
+      <select id="originNode">
+        <option value="A">Inventory A</option>
+        <option value="B">Inventory B</option>
+        <option value="C">Inventory C</option>
+        <option value="D">Inventory D</option>
+      </select>
+
+      <p class="hint">
+        This node creates a new inventory record with any location ID and signs it using its RSA private key. 
+      </p>
+    </section>
+
+    <!-- RECORD ENTRY SECTION -->
+    <section class="card">
+      <h2>2. Enter the desired Inventory Record</h2>
+
+      <div class="form-grid">
+        <div>
+          <label for="itemId">Item ID</label>
+          <input id="itemId" type="text" value="001" />
+        </div>
+
+        <div>
+          <label for="itemQty">Item Quantity</label>
+          <input id="itemQty" type="number" value="1" />
+        </div>
+
+        <div>
+          <label for="itemPrice">Item Price</label>
+          <input id="itemPrice" type="number" value="11" />
+        </div>
+
+        <div>
+          <label for="location">Location</label>
+          <input id="location" type="text" value="A" />
+        </div>
+      </div>
+
+      <p class="hint">
+        This record will be converted into a message string, hashed, signed and then verified.
+      </p>
+    </section>
+
+    <!-- TASK 1 ACTION SECTION -->
+    <section class="card">
+      <h2>3. Run Task 1 Workflow</h2>
+
+      <button onclick="runTask1Workflow()">
+        Generate consistent Record -> Hash it! -> Sign it! -> Verify!
+      </button>
+
+      <button onclick="clearOutput()">
+        Clear Output
+      </button>
+    </section>
+
+    <!-- OUTPUT SECTION -->
+    <section class="card">
+      <h2>4. Intermediate Computation Steps</h2>
+
+      <p class="hint">
+        Displays node, keys, record data, hash, signature, verification process and result.
+      </p>
+
+      <pre id="output">Waiting for Task 1 workflow...</pre>
+    </section>
+
+    <!-- CHECKLIST -->
+    <section class="card">
+      <h2>5. Task 1 Demonstration Checklist</h2>
+
+      <ul>
+        <li>Node selected</li>
+        <li>Record entered</li>
+        <li>RSA parameters loaded</li>
+        <li>n, phi, d computed</li>
+        <li>Message generated</li>
+        <li>Hash generated</li>
+        <li>Signature created</li>
+        <li>Signature verified</li>
+        <li>Result displayed</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- IMPORTANT: Correct script order -->
+  <script src="../src/utils.js"></script>
+  <script src="../src/task1.js"></script>
+  <script src="../src/main.js"></script>
+</body>
+</html>
