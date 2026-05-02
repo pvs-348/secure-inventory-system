@@ -65,7 +65,7 @@
       </div>
 
       <p class="hint">
-        This record will be converted into a message string, hashed, signed and then verified.
+        This record will be converted into a message string, a big MessageInteger, signed and then verified.
       </p>
     </section>
 
@@ -74,7 +74,7 @@
       <h2>3. Run Task 1 Workflow</h2>
 
       <button onclick="runTask1Workflow()">
-        Generate consistent Record -> Hash it! -> Sign it! -> Verify!
+        Generate consistent Record -> Get MessageInteger! -> Sign it! -> Verify!
       </button>
 
       <button onclick="clearOutput()">
@@ -87,7 +87,7 @@
       <h2>4. Intermediate Computation Steps</h2>
 
       <p class="hint">
-        Displays node, keys, record data, hash, signature, verification process and result.
+        Displays node, keys, record data, big MessageInteger conversion, signature, verification process and result.
       </p>
 
       <pre id="output">Waiting for Task 1 workflow...</pre>
@@ -103,7 +103,7 @@
         <li>RSA parameters loaded</li>
         <li>n, phi, d computed</li>
         <li>Message generated</li>
-        <li>Hash generated</li>
+        <li>Big MessageInteger created</li>
         <li>Signature created</li>
         <li>Signature verified</li>
         <li>Result displayed</li>

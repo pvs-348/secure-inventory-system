@@ -50,7 +50,7 @@ function runTask1Workflow() {
     let output = "";
 
     output += "TASK 1: DIGITAL SIGNATURE-BASED RECORD AUTHENTICATION\n";
-    output += "====================================================\n\n";
+    output += "======================================================\n\n";
 
     output += "1. NODE PERFORMING OPERATION\n";
     output += `Originating Node: Inventory ${selectedNode}\n\n`;
@@ -75,11 +75,26 @@ function runTask1Workflow() {
     output += `gcd(e, phi) = ${rsa.gcdValue}\n\n`;
     output += `d = e^(-1) mod phi\n${rsa.d}\n\n`;
 
-    output += "6. HASHING / MESSAGE-TO-INTEGER CONVERSION\n";
-    output += `Hash/Input Integer = ${signed.hash}\n\n`;
+
+    output += "6. MESSAGE-TO-INTEGER CONVERSION\n\n";
+    const conversion = getMessageConversionSteps(signed.message);
+    output += "Entered message in consistent format:\n";
+    output += `${signed.message}\n\n`;
+    output += "Message as characters:\n";
+    output += `${conversion.characters.join("   ")}\n\n`;
+    output += "ASCII decimal values:\n";
+    output += `${conversion.asciiCodes.join("   ")}\n\n`;
+    output += "Base-256 conversion steps:\n";
+    conversion.steps.forEach(item => {
+      output += `Step ${item.step}: ${item.previousValue} × 256 + ${item.asciiCode} = ${item.result}\n`;
+    });
+    output += "\nFinal message integer:\n";
+    output += `${conversion.finalInteger}\n\n`;
+    
 
     output += "7. DIGITAL SIGNATURE GENERATION\n";
-    output += "Formula: signature = hash^d mod n\n";
+    output += "Formula: \nsignature = Hash^d mod n\n";
+    output += "Here, we have used: signature = MessageInteger^d mod n\n";
     output += `Signature = ${signed.signature}\n\n`;
 
     output += "8. SIGNATURE VERIFICATION\n";

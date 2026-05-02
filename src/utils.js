@@ -90,3 +90,32 @@ function shortValue(value, start = 45, end = 45) {
 
   return `${text.slice(0, start)} ... ${text.slice(-end)}`;
 }
+
+
+function getMessageConversionSteps(text) {
+  let currentValue = 0n;
+  const steps = [];
+
+  for (let i = 0; i < text.length; i++) {
+    const character = text[i];
+    const asciiCode = BigInt(text.charCodeAt(i));
+    const previousValue = currentValue;
+
+    currentValue = currentValue * 256n + asciiCode;
+
+    steps.push({
+      step: i + 1,
+      character,
+      asciiCode,
+      previousValue,
+      result: currentValue
+    });
+  }
+
+  return {
+    characters: text.split(""),
+    asciiCodes: text.split("").map(char => char.charCodeAt(0)),
+    finalInteger: currentValue,
+    steps
+  };
+}
