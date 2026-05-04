@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Task 1 - Digital Signature-Based Record Authentication</title>
+  <title>Task 1 + Task 2 - Secure Record Insertion</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 
@@ -11,17 +11,16 @@
   <header class="topbar">
     <div class="header-left">
       <h1>Secure DLT-Based Inventory Management System</h1>
-      <p>Task 1: Digital Signature-Based Record Authentication</p>
+      <p>Task 1 + Task 2: Secure Record Insertion</p>
     </div>
 
     <div class="header-right">
-      <p><strong>Paramvir Singh</strong> (s4122987) </p>
-      <p><strong>Aayush Bhattarai</strong> (s4068259) </p>
+      <p><strong>Paramvir Singh</strong> (s4122987)</p>
+      <p><strong>Aayush Bhattarai</strong> (s4068259)</p>
     </div>
   </header>
 
   <main>
-    <!-- TASK 1 INPUT SECTION -->
     <section class="card">
       <h2>1. Select Originating Inventory Node</h2>
 
@@ -34,13 +33,12 @@
       </select>
 
       <p class="hint">
-        This node creates a new inventory record with any location ID and signs it using its RSA private key. 
+        The selected node creates and signs a record only for its own location.
       </p>
     </section>
 
-    <!-- RECORD ENTRY SECTION -->
     <section class="card">
-      <h2>2. Enter the desired Inventory Record</h2>
+      <h2>2. Enter Inventory Record</h2>
 
       <div class="form-grid">
         <div>
@@ -63,57 +61,46 @@
           <input id="location" type="text" value="A" />
         </div>
       </div>
-
-      <p class="hint">
-        This record will be converted into a message string, a big MessageInteger, signed and then verified.
-      </p>
     </section>
 
-    <!-- TASK 1 ACTION SECTION -->
     <section class="card">
-      <h2>3. Run Task 1 Workflow</h2>
+      <h2>3. Task 1: Digital Signature Workflow</h2>
 
       <button onclick="runTask1Workflow()">
-        Generate consistent Record -> Get MessageInteger! -> Sign it! -> Verify!
+        Run Task 1: Sign and Verify Record
       </button>
 
-      <button id="clearOutputBtn" onclick="clearOutput()">
-        Clear Output
+      <button id="clearTask1Btn" onclick="clearTask1Output()">
+        Clear Task 1 Output
       </button>
+
+      <pre id="task1Output">Waiting for Task 1 workflow...</pre>
     </section>
 
-    <!-- OUTPUT SECTION -->
     <section class="card">
-      <h2>4. Intermediate Computation Steps</h2>
+      <h2>4. Task 2: PBFT Consensus and Storage</h2>
 
-      <p class="hint">
-        Displays node, keys, record data, big MessageInteger conversion, signature, verification process and result.
-      </p>
+      <button onclick="runTask2Workflow()">
+        Run Task 2: Broadcast → Vote → Consensus → Store
+      </button>
 
-      <pre id="output">Waiting for Task 1 workflow...</pre>
-    </section>
+      <button onclick="showTask2StorageStatus()">
+        Show Current Inventory Storage
+      </button>
 
-    <!-- CHECKLIST -->
-    <section class="card">
-      <h2>5. Task 1 Demonstration Checklist</h2>
+      <button id="clearTask2Btn" onclick="clearTask2Output()">
+        Clear Task 2 Output
+      </button>
 
-      <ul>
-        <li>Node selected</li>
-        <li>Record entered</li>
-        <li>RSA parameters loaded</li>
-        <li>n, phi, d computed</li>
-        <li>Message generated</li>
-        <li>Big MessageInteger created</li>
-        <li>Signature created</li>
-        <li>Signature verified</li>
-        <li>Result displayed</li>
-      </ul>
+      <pre id="task2Output">Waiting for Task 2 workflow...</pre>
     </section>
   </main>
 
-  <!-- IMPORTANT: Correct script order -->
   <script src="../src/utils.js"></script>
   <script src="../src/task1.js"></script>
+  <script src="../src/InventoryNodes.js"></script>
+  <script src="../src/network.js"></script>
+  <script src="../src/task2.js"></script>
   <script src="../src/main.js"></script>
 </body>
 </html>

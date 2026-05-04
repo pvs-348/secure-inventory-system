@@ -1,23 +1,25 @@
+// Persistent inventory nodes
+const task2Nodes = [
+    new InventoryNode("A"),
+    new InventoryNode("B"),
+    new InventoryNode("C"),
+    new InventoryNode("D")
+];
+
+// Persistent network
+const task2Network = new InventoryNetwork(task2Nodes);
+
 function runTask2(record, signature, originNode) {
-    const nodes = [
-        new InventoryNode("A"),
-        new InventoryNode("B"),
-        new InventoryNode("C"),
-        new InventoryNode("D")
-    ];
-
-    const network = new InventoryNetwork(nodes);
-
-    const votes = network.broadcastAndCollectVotes(
+    const votes = task2Network.broadcastAndCollectVotes(
         record,
         signature,
         originNode
     );
 
-    const consensus = network.reachConsensus(votes);
+    const consensus = task2Network.reachConsensus(votes);
 
     if (consensus.decision === "ACCEPT") {
-        network.syncStorage(record);
+        task2Network.syncStorage(record);
     }
 
     return {
@@ -26,6 +28,10 @@ function runTask2(record, signature, originNode) {
         acceptCount: consensus.acceptCount,
         rejectCount: consensus.rejectCount,
         totalNodes: consensus.totalNodes,
-        nodes
+        nodes: task2Nodes
     };
+}
+
+function getTask2StorageStatus() {
+    return task2Nodes;
 }
