@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>DLT Inventory System</title>
+  <title>Secure DLT-Based Inventory Management System</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -10,7 +10,7 @@
   <header class="topbar">
   <div class="header-left">
     <h1>Secure DLT-Based Inventory Management System</h1>
-    <p>Assignment 2 Task Selection</p>
+    <p>Assignment 2 Task Selection and Home Page</p>
   </div>
 
   <div class="header-right">
@@ -19,16 +19,25 @@
   </div>
 </header>
 
-  <main style="text-align: center; margin-top: 80px;">
+<main class="home-main">
+  <section class="task-selector-card">
+    <p class="eyebrow">Assignment 2 Demonstration</p>
+    <h2>Choose the Desired Task</h2>
+    <p class="selector-hint">
+      Select a workflow to demonstrate the secure DLT inventory system.
+    </p>
 
-    <h2>Choose the desired Task</h2>
+    <div class="task-buttons">
+      <button onclick="goToTask('task1+2.html')">
+        Task 1+2: Digital Signature and Consensus
+      </button>
 
-    <div style="margin-top: 30px;">
-      <button onclick="goToTask('task1+2.html')">Task 1+2: Digital Signature and Consensus</button>
-      <button onclick="goToTask('task3.html')">Task 3: Multi-Signature</button>
+      <button onclick="goToTask('task3.html')">
+        Task 3: Multi-Signature
+      </button>
     </div>
-
-  </main>
+  </section>
+</main>
 
   <script>
     function goToTask(page) {
