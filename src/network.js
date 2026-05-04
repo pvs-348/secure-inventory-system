@@ -8,7 +8,7 @@ class InventoryNetwork {
 
         for (let node of this.nodes) {
             const vote = node.vote(record, signature, originNode);
-            votes.push({ node: node.name, vote });
+            votes.push(vote);
         }
 
         return votes;

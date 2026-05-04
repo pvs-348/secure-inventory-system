@@ -19,7 +19,7 @@ class InventoryNode {
         return result.isValid;
     }
 
-    validateRecord(record) {
+    validateRecord(record, originNode) {
         if (!record.itemId || !record.itemQty || !record.itemPrice || !record.location) {
             return false;
         }
@@ -28,15 +28,26 @@ class InventoryNode {
             return false;
         }
 
+        if (record.location.toUpperCase() !== originNode) {
+            return false;
+        }
+
         return true;
     }
 
     vote(record, signature, originNode) {
-        const sigValid = this.verifyRecordSignature(record, signature, originNode);
-        const dataValid = this.validateRecord(record);
+    const sigValid = this.verifyRecordSignature(record, signature, originNode);
+    const dataValid = this.validateRecord(record, originNode);
 
-        return sigValid && dataValid ? "ACCEPT" : "REJECT";
-    }
+    const vote = sigValid && dataValid ? "ACCEPT" : "REJECT";
+
+    return {
+        node: this.name,
+        signatureValid: sigValid,
+        dataValid: dataValid,
+        vote: vote
+    };
+}
 
     storeRecord(record) {
         this.records.push(record);
