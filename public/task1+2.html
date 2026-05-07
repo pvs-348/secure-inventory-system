@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Task 1 + Task 2 - Secure Record Insertion</title>
+  <title>Task 1 + 2 Workflow</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 
@@ -11,7 +11,7 @@
   <header class="topbar">
     <div class="header-left">
       <h1>Secure DLT-Based Inventory Management System</h1>
-      <p>Task 1 + Task 2: Secure Record Insertion</p>
+      <p>Task 1 + 2 Workflow</p>
     </div>
 
     <div class="header-right">
@@ -21,24 +21,57 @@
   </header>
 
   <main>
-    <section class="card">
-      <h2>1. Select Originating Inventory Node</h2>
+    <section class="card workflow-intro-card">
+      <h2>About our Tool</h2>
+      <p>
+        This page demonstrates the complete secure record insertion lifecycle:
+        record creation, message formatting, message integer conversion, RSA signing,
+        signature verification, PBFT-style voting, consensus decision and final local storage.
+      </p>
 
-      <label for="originNode">Inventory Node Performing Operation</label>
+      <p class="warning-note">
+        Run the buttons from top to bottom one by one as all the steps depend on the previous steps.
+      </p>
+
+      <button onclick="window.location.href='home.html'">
+        Back to Home Page
+      </button>
+
+      <button onclick="resetDetailedWorkflow()">
+        Reset All
+      </button>
+    </section>
+
+    <section class="card">
+      <h2>Initial and Current Inventory State</h2>
+      <p class="step-explanation">
+        Before adding a new record, this shows the current inventory state of Warehouses A, B, C and D.
+        If the page is newly loaded and no record has been accepted yet, all nodes should show empty storage.
+        If the record has been successfully run and accepted in the final PBFT consensus step, all nodes should show the new record in their storage.
+      </p>
+
+      <button onclick="showInitialStorageStatus()">
+        Show Current Inventory Storage
+      </button>
+
+      <pre id="outInitialStorage" class="step-output">Waiting for current storage.</pre>
+    </section>
+
+    <section class="card">
+      <h2>Record Input</h2>
+
+      <p class="step-explanation">
+        Choose the inventory node creating the new record. The selected node becomes the signer.
+        The location is editable so incorrect sender-location attempts can be demonstrated.
+      </p>
+
+      <label for="originNode">Originating Inventory Node</label>
       <select id="originNode">
         <option value="A">Inventory A</option>
         <option value="B">Inventory B</option>
         <option value="C">Inventory C</option>
         <option value="D">Inventory D</option>
       </select>
-
-      <p class="hint">
-        The selected node creates and signs a record only for its own location.
-      </p>
-    </section>
-
-    <section class="card">
-      <h2>2. Enter Inventory Record</h2>
 
       <div class="form-grid">
         <div>
@@ -63,43 +96,138 @@
       </div>
     </section>
 
-    <section class="card">
-      <h2>3. Task 1: Digital Signature Workflow</h2>
+    <section class="workflow-steps">
+      <article class="workflow-step-card">
+        <div class="step-head">
+          <span>1</span>
+          <h3>Create Record</h3>
+        </div>
 
-      <button onclick="runTask1Workflow()">
-        Run Task 1: Sign and Verify Record
-      </button>
+        <p class="step-explanation">
+          Creates the raw inventory record object from the form. No cryptographic protection has been applied yet.
+        </p>
 
-      <button id="clearTask1Btn" onclick="clearTask1Output()">
-        Clear Task 1 Output
-      </button>
+        <button onclick="step1CreateRecord()">Create Record</button>
+        <pre id="outCreateRecord" class="step-output">Waiting for record creation.</pre>
+      </article>
 
-      <pre id="task1Output">Waiting for Task 1 workflow...</pre>
-    </section>
+      <article class="workflow-step-card">
+        <div class="step-head">
+          <span>2</span>
+          <h3>Format Message</h3>
+        </div>
 
-    <section class="card">
-      <h2>4. Task 2: PBFT Consensus and Storage</h2>
+        <p class="step-explanation">
+          Converts the record into the consistent message format:
+          <strong>itemId|itemQty|itemPrice|location</strong>.
+        </p>
 
-      <button onclick="runTask2Workflow()">
-        Run Task 2: Broadcast → Vote → Consensus → Store
-      </button>
+        <button onclick="step2FormatMessage()">Format Message</button>
+        <pre id="outFormatMessage" class="step-output">Waiting for formatted message.</pre>
+      </article>
 
-      <button onclick="showTask2StorageStatus()">
-        Show Current Inventory Storage
-      </button>
+      <article class="workflow-step-card">
+        <div class="step-head">
+          <span>3</span>
+          <h3>Convert Message to Hash </h3>
+        </div>
 
-      <button id="clearTask2Btn" onclick="clearTask2Output()">
-        Clear Task 2 Output
-      </button>
+        <p class="step-explanation">
+          Here MessageInteger was used instead of a standard hash function like SHA-256 or MD5, just to manually derive the functions and avoid importing external libraries.
+          This converts the message string into a BigInt using base-256 conversion.
+          We use the derived integer as the value signed by RSA.
+        </p>
 
-      <pre id="task2Output">Waiting for Task 2 workflow...</pre>
+        <button onclick="step3ConvertMessageInt()">Generate Message Integer</button>
+        <pre id="outMessageInt" class="step-output">Waiting for message integer calculation.</pre>
+      </article>
+
+      <article class="workflow-step-card">
+        <div class="step-head">
+          <span>4</span>
+          <h3>Derive RSA Key Values</h3>
+        </div>
+
+        <p class="step-explanation">
+          Uses the provided p, q, and e values of respective inventories to derive n, phi, gcd(e, phi) and private exponent d to further proceed signing and verification.
+        </p>
+
+        <button onclick="step4DeriveKeys()">Derive RSA Keys</button>
+        <pre id="outRSA" class="step-output">Waiting for RSA derivation.</pre>
+      </article>
+
+      <article class="workflow-step-card">
+        <div class="step-head">
+          <span>5</span>
+          <h3>Sign Record</h3>
+        </div>
+
+        <p class="step-explanation">
+          Signs the message integer using the originating node's private key.
+        </p>
+
+        <button onclick="step5SignRecord()">Sign Record</button>
+        <pre id="outSign" class="step-output">Waiting for signature.</pre>
+      </article>
+
+      <article class="workflow-step-card">
+        <div class="step-head">
+          <span>6</span>
+          <h3>Verify Signature</h3>
+        </div>
+
+        <p class="step-explanation">
+          Verifies the signature using the originating node's public key.
+        </p>
+
+        <button onclick="step6VerifySignature()">Verify Signature</button>
+        <pre id="outVerify" class="step-output">Waiting for verification.</pre>
+      </article>
+
+      <article class="workflow-step-card">
+        <div class="step-head">
+          <span>7</span>
+          <h3>Broadcast and Collect Votes</h3>
+        </div>
+
+        <p class="step-explanation">
+          The originating node broadcasts the signed record package to all inventory nodes.<br>
+          The package contains the record, origin node ID, formatted message, message integer and RSA signature.<br>
+          Each node then independently checks: <br>
+          (1) whether the signature is valid using the origin node's public key.<br>
+          (2) whether the record fields are complete.<br>
+          (3) whether quantity and price are positive.<br>
+          (4) whether the record location matches the sender's identity.<br>
+          Based on these checks, each node votes ACCEPT or REJECT.<br>
+        </p>
+
+        <button onclick="step7BroadcastVotes()">Broadcast + Collect Votes</button>
+        <pre id="outVotes" class="step-output">Waiting for node votes.</pre>
+      </article>
+
+      <article class="workflow-step-card">
+        <div class="step-head">
+          <span>8</span>
+          <h3>Consensus and Storage</h3>
+        </div>
+
+        <p class="step-explanation">
+          After all nodes vote, the system counts how many nodes voted ACCEPT and REJECT.
+          In this simplified PBFT-style consensus, the record is accepted only if at least 3 out of 4
+          inventory nodes vote ACCEPT. This means one faulty or malicious node can disagree, but the
+          system can still reach agreement. If the threshold is reached, the record is committed by
+          storing a copy in every inventory node's local storage. If fewer than 3 nodes accept, the
+          record is rejected and no storage is updated.
+        </p>
+
+        <button onclick="step8ConsensusStorage()">Run Consensus + Store</button>
+        <pre id="outConsensus" class="step-output">Waiting for consensus result.</pre>
+      </article>
     </section>
   </main>
 
   <script src="../src/utils.js"></script>
   <script src="../src/task1.js"></script>
-  <script src="../src/InventoryNodes.js"></script>
-  <script src="../src/network.js"></script>
   <script src="../src/task2.js"></script>
   <script src="../src/main.js"></script>
 </body>

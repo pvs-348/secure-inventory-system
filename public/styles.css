@@ -328,3 +328,153 @@ li::marker {
     font-size: 30px;
   }
 }
+/* Task 1 + 2 overview page */
+.intro-card {
+  text-align: center;
+}
+
+.process-flow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin-top: 26px;
+  text-align: left;
+}
+
+.flow-step,
+.mode-card {
+  padding: 20px;
+  background: rgba(2, 6, 23, 0.75);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 16px;
+}
+
+.flow-step span {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  color: #111827;
+  background: #facc15;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.flow-step strong,
+.mode-card h3 {
+  display: block;
+  color: #ffffff;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.flow-step p,
+.mode-card p {
+  margin: 0 0 16px;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.step-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.step-buttons button {
+  margin-right: 0;
+}
+
+@media (max-width: 800px) {
+  .choice-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Detailed Task 1 + 2 workflow page */
+.workflow-intro-card p {
+  max-width: 980px;
+  line-height: 1.6;
+}
+
+.warning-note {
+  color: #fef3c7;
+  background: rgba(250, 204, 21, 0.08);
+  border-left: 4px solid #facc15;
+  padding: 12px 14px;
+  border-radius: 10px;
+}
+
+.workflow-steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+  margin-bottom: 40px;
+}
+
+.workflow-step-card {
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 20px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+}
+
+.step-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.step-head span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: #111827;
+  background: #facc15;
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.step-head h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 22px;
+}
+
+.step-explanation {
+  margin: 0 0 16px;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.step-output {
+  min-height: 120px;
+  margin-top: 16px;
+  padding: 18px;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  background: rgba(2, 6, 23, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 14px;
+  color: #dbeafe;
+  line-height: 1.55;
+}
+
+.error-output {
+  color: #fecaca;
+  border-color: rgba(248, 113, 113, 0.75);
+  background: rgba(127, 29, 29, 0.28);
+}

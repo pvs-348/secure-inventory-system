@@ -1,4 +1,6 @@
-let lastTask1Result = null;
+function getSelectedNode() {
+  return document.getElementById("originNode").value;
+}
 
 function getRecordFromForm() {
   return {
@@ -9,53 +11,29 @@ function getRecordFromForm() {
   };
 }
 
-function getSelectedNode() {
-  return document.getElementById("originNode").value;
-}
-
-function writeTask1Output(text) {
-  document.getElementById("task1Output").textContent = text;
-}
-
-function writeTask2Output(text) {
-  document.getElementById("task2Output").textContent = text;
-}
-
-function clearTask1Output() {
-  writeTask1Output("Waiting for Task 1 workflow...");
-}
-
-function clearTask2Output() {
-  writeTask2Output("Waiting for Task 2 workflow...");
-}
-
-function syncLocationWithNode() {
-  document.getElementById("location").value = getSelectedNode();
-}
-
 function validateRecord(record, selectedNode) {
   if (!record.itemId) {
     return "ERROR: Item ID is missing. Enter a valid item ID.";
   }
 
   if (!record.itemQty) {
-    return "ERROR: Item quantity is missing. Enter a valid quantity.";
+    return "ERROR: Item quantity is missing. Enter a valid quantity. ";
   }
 
   if (Number(record.itemQty) <= 0) {
-    return "ERROR: Invalid quantity. Quantity must be a positive number.";
+    return "ERROR: Invalid quantity. Quantity must be a positive number. ";
   }
 
   if (!record.itemPrice) {
-    return "ERROR: Item price is missing. Enter a valid price OR you want to sell stuff for free and cope a loss?";
+    return "ERROR: Item price is missing. Enter a valid price. (You can't give free items!)";
   }
 
   if (Number(record.itemPrice) <= 0) {
-    return "ERROR: Invalid price. Price must be a positive number, you can't pay people to take stuff off of you!";
+    return "ERROR: Invalid price. Price must be a positive number. (You can't give money with the items!)";
   }
 
   if (!record.location) {
-    return "ERROR: Location is missing. Enter the inventory location. Items can't be homeless, can they?";
+    return "ERROR: Location is missing. Enter the inventory location.";
   }
 
   if (record.location.toUpperCase() !== selectedNode) {
@@ -63,183 +41,6 @@ function validateRecord(record, selectedNode) {
   }
 
   return null;
-}
-
-function runTask1Workflow() {
-  const selectedNode = getSelectedNode();
-  const record = getRecordFromForm();
-
-const validationError = validateRecord(record, selectedNode);
-
-  if (validationError) {
-    writeTask1Output(validationError);
-    return;
-  }
-
-  try {
-    const result = runTask1(selectedNode, record);
-
-    lastTask1Result = {
-      record,
-      signature: result.signedData.signature,
-      originNode: selectedNode
-    };
-
-    const signed = result.signedData;
-    const verify = result.verification;
-    const rsa = signed.rsa;
-
-    let output = "";
-
-    output += "TASK 1: DIGITAL SIGNATURE-BASED RECORD AUTHENTICATION\n";
-    output += "======================================================\n\n";
-
-    output += "1. NODE PERFORMING OPERATION\n";
-    output += `Originating Node: Inventory ${selectedNode}\n\n`;
-
-    output += "2. NEW INVENTORY RECORD\n";
-    output += `Item ID       : ${record.itemId}\n`;
-    output += `Item Quantity : ${record.itemQty}\n`;
-    output += `Item Price    : ${record.itemPrice}\n`;
-    output += `Location      : ${record.location}\n\n`;
-
-    output += "3. RECORD MESSAGE FORMAT\n";
-    output += `Message String: ${signed.message}\n\n`;
-
-    output += "4. RSA PARAMETERS LOADED FROM LIST OF KEYS\n";
-    output += `p = ${rsa.p}\n\n`;
-    output += `q = ${rsa.q}\n\n`;
-    output += `e = ${rsa.e}\n\n`;
-
-    output += "5. DERIVED RSA VALUES\n";
-    output += `n = p × q\n${rsa.n}\n\n`;
-    output += `phi = (p - 1)(q - 1)\n${rsa.phi}\n\n`;
-    output += `gcd(e, phi) = ${rsa.gcdValue}\n\n`;
-    output += `d = e^(-1) mod phi\n${rsa.d}\n\n`;
-
-    output += "6. MESSAGE-TO-INTEGER CONVERSION\n\n";
-    const conversion = getMessageConversionSteps(signed.message);
-
-    output += "Entered message in consistent format:\n";
-    output += `${signed.message}\n\n`;
-
-    output += "Message as characters:\n";
-    output += `${conversion.characters.join("   ")}\n\n`;
-
-    output += "ASCII decimal values:\n";
-    output += `${conversion.asciiCodes.join("   ")}\n\n`;
-
-    output += "Base-256 conversion steps:\n";
-    conversion.steps.forEach(item => {
-      output += `Step ${item.step}: ${item.previousValue} × 256 + ${item.asciiCode} = ${item.result}\n`;
-    });
-
-    output += "\nFinal message integer:\n";
-    output += `${conversion.finalInteger}\n\n`;
-
-    output += "7. DIGITAL SIGNATURE GENERATION\n";
-    output += "Formula:\nsignature = Hash^d mod n\n";
-    output += "Here, we have used: signature = MessageInteger^d mod n\n";
-    output += `Signature = ${signed.signature}\n\n`;
-
-    output += "8. SIGNATURE VERIFICATION\n";
-    output += "Formula: recoveredHash = signature^e mod n\n";
-    output += `Recovered Hash = ${verify.recoveredHash}\n`;
-    output += `Original Hash  = ${verify.originalHash}\n\n`;
-
-    output += "9. FINAL VERIFICATION RESULT\n";
-    output += verify.isValid
-      ? "VALID SIGNATURE: Record authenticity and integrity verified.\n"
-      : "INVALID SIGNATURE: Record has failed verification.\n";
-
-    output += "\nTask 1 completed. Now run Task 2 to broadcast this signed record for consensus.\n";
-
-    writeTask1Output(output);
-
-  } catch (error) {
-    writeTask1Output("ERROR:\n" + error.message);
-  }
-}
-
-
-
-
-
-
-function runTask2Workflow() {
-  if (!lastTask1Result) {
-    writeTask2Output("ERROR: Run Task 1 first. Task 2 uses the signed and verified record generated by Task 1.");
-    return;
-  }
-
-  try {
-    const { record, signature, originNode } = lastTask1Result;
-
-    const result = runTask2(record, signature, originNode);
-
-    let output = "";
-
-    output += "TASK 2: PBFT-STYLE CONSENSUS AND LOCAL STORAGE\n";
-    output += "======================================================\n\n";
-
-    output += "1. SIGNED RECORD RECEIVED FROM TASK 1\n";
-    output += `Originating Node: Inventory ${originNode}\n`;
-    output += `Record: ${JSON.stringify(record)}\n`;
-    output += `Signature: ${signature}\n\n`;
-
-    output += "2. BROADCASTING RECORD TO ALL INVENTORY NODES\n";
-    output += "The signed record is broadcast to Inventory A, B, C, and D.\n\n";
-
-    output += "3. NODE VERIFICATION AND VOTING RESULTS\n";  
-    result.votes.forEach(v => {
-      output += `Inventory ${v.node}\n`;
-      output += `  Signature Valid : ${v.signatureValid ? "YES" : "NO"}\n`;
-      output += `  Data Valid      : ${v.dataValid ? "YES" : "NO"}\n`;
-      output += `  Final Vote      : ${v.vote}\n\n`;
-    });
-
-    output += "\n4. CONSENSUS RULE\n";
-    output += "Simplified PBFT-style rule: accept if at least 3 out of 4 nodes vote ACCEPT.\n";
-    output += `Accept Votes: ${result.acceptCount}/${result.totalNodes}\n`;
-    output += `Reject Votes: ${result.rejectCount}/${result.totalNodes}\n\n`;
-
-    output += "5. FINAL CONSENSUS DECISION\n";
-    output += `Decision: ${result.decision}\n\n`;
-
-    if (result.decision === "ACCEPT") {
-      output += "6. STORAGE RESULT\n";
-      output += "Consensus successful. Record stored in every inventory node's local storage.\n\n";
-
-      output += formatStorageStatus(result.nodes);
-    } else {
-      output += "6. STORAGE RESULT\n";
-      output += "Consensus failed. Record was not stored.\n";
-    }
-
-    writeTask2Output(output);
-
-    lastTask1Result = null;
-
-  } catch (error) {
-    writeTask2Output("ERROR (Task 2):\n" + error.message);
-  }
-}
-
-function showTask2StorageStatus() {
-  try {
-    const nodes = getTask2StorageStatus();
-
-    let output = "";
-
-    output += "CURRENT LOCAL STORAGE OF ALL INVENTORY NODES\n";
-    output += "======================================================\n\n";
-    output += formatStorageStatus(nodes);
-
-    writeTask2Output(output);
-
-  } catch (error) {
-    writeTask2Output("ERROR (Storage Status):\n" + error.message);
-  }
 }
 
 function formatStorageStatus(nodes) {
@@ -251,7 +52,7 @@ function formatStorageStatus(nodes) {
     const records = node.getRecords();
 
     if (records.length === 0) {
-      output += "  No records stored yet.\n\n";
+      output += "  EMPTY - no records stored yet.\n\n";
       return;
     }
 
@@ -266,4 +67,303 @@ function formatStorageStatus(nodes) {
   });
 
   return output;
+}
+
+let detailedRecord = null;
+let detailedOriginNode = null;
+let detailedMessage = null;
+let detailedHash = null;
+let detailedRSA = null;
+let detailedSignature = null;
+let detailedVerification = null;
+let detailedVotes = null;
+
+function showInitialStorageStatus() {
+  const output =
+    "CURRENT INVENTORY STATE\n" +
+    "\n" +
+    formatStorageStatus(getTask2StorageStatus());
+
+  document.getElementById("outInitialStorage").textContent = output;
+}
+
+function step1CreateRecord() {
+  detailedOriginNode = getSelectedNode();
+  detailedRecord = getRecordFromForm();
+
+  const validationError = validateRecord(detailedRecord, detailedOriginNode);
+
+  if (validationError) {
+    document.getElementById("outCreateRecord").textContent = validationError;
+    return;
+  }
+
+  document.getElementById("outCreateRecord").textContent =
+    "RECORD CREATED SUCCESSFULLY\n" +
+    "\n" +
+    `Originating Node: Inventory ${detailedOriginNode}\n\n` +
+    JSON.stringify(detailedRecord, null, 2);
+}
+
+function step2FormatMessage() {
+  if (!detailedRecord) {
+    document.getElementById("outFormatMessage").textContent =
+      "ERROR: Create the record first.";
+    return;
+  }
+
+  detailedMessage = recordToMessage(detailedRecord);
+
+  document.getElementById("outFormatMessage").textContent =
+    "FORMATTED MESSAGE\n" +
+    "\n" +
+    "Format used: itemId|itemQty|itemPrice|location\n\n" +
+    `Message: ${detailedMessage}`;
+}
+
+function step3ConvertMessageInt() {
+  if (!detailedMessage) {
+    document.getElementById("outMessageInt").textContent =
+      "ERROR: Format the message first.";
+    return;
+  }
+
+  detailedHash = textToBigIntHash(detailedMessage);
+  const conversion = getMessageConversionSteps(detailedMessage);
+
+  let output = "";
+
+  output += "MESSAGE INTEGER or HASH CONVERSION\n";
+  output += "\n";
+
+  output += "Characters:\n";
+  output += `${conversion.characters.join("   ")}\n\n`;
+
+  output += "ASCII decimal values:\n";
+  output += `${conversion.asciiCodes.join("   ")}\n\n`;
+
+  output += "Base-256 conversion steps:\n";
+  conversion.steps.forEach(item => {
+    output += `Step ${item.step}: ${item.previousValue} × 256 + ${item.asciiCode} = ${item.result}\n`;
+  });
+
+  output += "\nFinal Message Integer:\n";
+  output += `${detailedHash}`;
+
+  document.getElementById("outMessageInt").textContent = output;
+}
+
+function step4DeriveKeys() {
+  if (!detailedOriginNode) {
+    document.getElementById("outRSA").textContent =
+      "ERROR: Please complete the previous step first.";
+    return;
+  }
+
+  detailedRSA = deriveRSAKeys(detailedOriginNode);
+
+  let output = "";
+
+  output += "RSA VALUES\n";
+  output += "\n";
+
+  output += `Inventory Node: ${detailedOriginNode}\n\n`;
+  output += `p = ${detailedRSA.p}\n\n`;
+  output += `q = ${detailedRSA.q}\n\n`;
+  output += `e = ${detailedRSA.e}\n\n`;
+  output += `n = p × q\n${detailedRSA.n}\n\n`;
+  output += `phi = (p - 1)(q - 1)\n${detailedRSA.phi}\n\n`;
+  output += `gcd(e, phi) = ${detailedRSA.gcdValue}\n\n`;
+  output += `d = e^(-1) mod phi\n${detailedRSA.d}`;
+
+  document.getElementById("outRSA").textContent = output;
+}
+
+function step5SignRecord() {
+  if (!detailedRecord || !detailedOriginNode) {
+    document.getElementById("outSign").textContent =
+      "ERROR: Generate RSA keys first.";
+    return;
+  }
+
+  const signed = signRecord(detailedOriginNode, detailedRecord);
+
+  detailedMessage = signed.message;
+  detailedHash = signed.hash;
+  detailedRSA = signed.rsa;
+  detailedSignature = signed.signature;
+
+  let output = "";
+
+  output += "DIGITAL SIGNATURE GENERATION\n";
+  output += "\n";
+  output += `Message: ${detailedMessage}\n\n`;
+  output += `Message Integer: ${detailedHash}\n\n`;
+  output += "Formula: signature = MessageInteger^d mod n\n\n";
+  output += `Signature:\n${detailedSignature}`;
+
+  document.getElementById("outSign").textContent = output;
+}
+
+function step6VerifySignature() {
+  if (!detailedSignature) {
+    document.getElementById("outVerify").textContent =
+      "ERROR: Sign the record first.";
+    return;
+  }
+
+  detailedVerification = verifySignature(
+    detailedOriginNode,
+    detailedMessage,
+    detailedHash,
+    detailedSignature
+  );
+
+  let output = "";
+
+  output += "SIGNATURE VERIFICATION\n";
+  output += "\n";
+  output += "Formula: recoveredHash = signature^e mod n\n\n";
+  output += `Recovered Hash:\n${detailedVerification.recoveredHash}\n\n`;
+  output += `Original Hash:\n${detailedVerification.originalHash}\n\n`;
+  output += detailedVerification.isValid
+    ? "VALID SIGNATURE: record authenticity and integrity verified."
+    : "INVALID SIGNATURE: record verification failed.";
+
+  document.getElementById("outVerify").textContent = output;
+}
+
+function step7BroadcastVotes() {
+  if (!detailedVerification || !detailedVerification.isValid) {
+    document.getElementById("outVotes").textContent =
+      "ERROR: Verify the signature successfully before broadcasting.";
+    return;
+  }
+
+  detailedVotes = task2Network.broadcastAndCollectVotes(
+    detailedRecord,
+    detailedSignature,
+    detailedOriginNode
+  );
+
+  let output = "";
+
+  output += "PBFT-STYLE BROADCAST AND NODE VOTING\n";
+  output += "\n";
+
+  output += "1. WHAT IS BROADCASTED?\n";
+  output += "The originating inventory node broadcasts this signed record package:\n\n";
+  output += `Origin Node      : Inventory ${detailedOriginNode}\n`;
+  output += `Record           : ${JSON.stringify(detailedRecord)}\n`;
+  output += `Formatted Message: ${detailedMessage}\n`;
+  output += `Message Integer  : ${detailedHash}\n`;
+  output += `RSA Signature    : ${detailedSignature}\n\n`;
+
+  output += "2. WHAT DOES EACH NODE CHECK BEFORE VOTING?\n";
+  output += "Each inventory node independently verifies the same package using these rules:\n";
+  output += "- Signature must be valid using the origin node's public key.\n";
+  output += "- Item ID, quantity, price and location must exist.\n";
+  output += "- Quantity must be positive.\n";
+  output += "- Price must be positive.\n";
+  output += "- Location must match the originating node identity.\n\n";
+
+  output += "3. WHY THIS IS PBFT-STYLE?\n";
+  output += "This is a simplified PBFT-style process because all nodes are known participants, ";
+  output += "the signed request is broadcast to every node, each node independently validates it, ";
+  output += "and agreement is based on a 3-out-of-4 acceptance threshold.\n\n";
+
+  output += "4. NODE VERIFICATION AND VOTING RESULTS\n\n";
+
+  detailedVotes.forEach(v => {
+    output += `Inventory ${v.node}\n`;
+    output += `  Signature check : ${v.signatureValid ? "PASS" : "FAIL"}\n`;
+    output += `  Data check      : ${v.dataValid ? "PASS" : "FAIL"}\n`;
+    output += `  Vote decision   : ${v.vote}\n\n`;
+  });
+
+  document.getElementById("outVotes").textContent = output;
+}
+
+function step8ConsensusStorage() {
+  if (!detailedVotes) {
+    document.getElementById("outConsensus").textContent =
+      "ERROR: Broadcast and collect votes first.";
+    return;
+  }
+
+  const consensus = task2Network.reachConsensus(detailedVotes);
+
+  if (consensus.decision === "ACCEPT") {
+    task2Network.syncStorage(detailedRecord);
+  }
+
+  let output = "";
+
+  output += "PBFT-STYLE CONSENSUS AND STORAGE\n";
+  output += "\n";
+
+  output += "1. VOTES RECEIVED FROM INVENTORY NODES\n";
+  detailedVotes.forEach(v => {
+    output += `Inventory ${v.node}: ${v.vote}\n`;
+  });
+
+  output += "\n2. CONSENSUS RULE USED\n";
+  output += "This prototype uses a simplified PBFT-style rule:\n";
+  output += "A record is accepted only if at least 3 out of 4 inventory nodes vote ACCEPT.\n\n";
+
+  output += "Reason:\n";
+  output += "With 4 known inventory nodes, the system can tolerate 1 faulty or malicious node.\n";
+  output += "So even if one node rejects or behaves incorrectly, 3 matching ACCEPT votes are enough for agreement.\n\n";
+
+  output += "3. VOTE COUNT\n";
+  output += `Accept Votes: ${consensus.acceptCount}/${consensus.totalNodes}\n`;
+  output += `Reject Votes: ${consensus.rejectCount}/${consensus.totalNodes}\n\n`;
+
+  output += "4. FINAL CONSENSUS DECISION\n";
+  output += `Decision: ${consensus.decision}\n\n`;
+
+  output += "5. STORAGE ACTION\n";
+
+  if (consensus.decision === "ACCEPT") {
+    output += "Consensus reached.\n";
+    output += "The record is committed and copied into every inventory node's local storage.\n\n";
+  } else {
+    output += "Consensus threshold not reached.\n";
+    output += "The record is rejected and no inventory node storage is updated.\n\n";
+  }
+
+  output += "6. CURRENT LOCAL STORAGE AFTER CONSENSUS\n";
+  output += formatStorageStatus(getTask2StorageStatus());
+
+  document.getElementById("outConsensus").textContent = output;
+
+  detailedRecord = null;
+  detailedOriginNode = null;
+  detailedMessage = null;
+  detailedHash = null;
+  detailedRSA = null;
+  detailedSignature = null;
+  detailedVerification = null;
+  detailedVotes = null;
+}
+
+function resetDetailedWorkflow() {
+  detailedRecord = null;
+  detailedOriginNode = null;
+  detailedMessage = null;
+  detailedHash = null;
+  detailedRSA = null;
+  detailedSignature = null;
+  detailedVerification = null;
+  detailedVotes = null;
+
+  document.getElementById("outInitialStorage").textContent = "Waiting for current storage.";
+  document.getElementById("outCreateRecord").textContent = "Waiting for record creation.";
+  document.getElementById("outFormatMessage").textContent = "Waiting for formatted message.";
+  document.getElementById("outMessageInt").textContent = "Waiting for message integer calculation.";
+  document.getElementById("outRSA").textContent = "Waiting for RSA derivation.";
+  document.getElementById("outSign").textContent = "Waiting for signature.";
+  document.getElementById("outVerify").textContent = "Waiting for verification.";
+  document.getElementById("outVotes").textContent = "Waiting for node votes.";
+  document.getElementById("outConsensus").textContent = "Waiting for consensus result.";
 }
