@@ -294,8 +294,18 @@ function step8ConsensusStorage() {
   const consensus = task2Network.reachConsensus(detailedVotes);
 
   if (consensus.decision === "ACCEPT") {
-    task2Network.syncStorage(detailedRecord);
-  }
+  task2Network.syncStorage(detailedRecord);
+
+  fetch("/store-record", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      record: detailedRecord
+    })
+  });
+}
 
   let output = "";
 
@@ -345,9 +355,19 @@ function step8ConsensusStorage() {
   detailedSignature = null;
   detailedVerification = null;
   detailedVotes = null;
+
+  fetch("/store-record", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ record: detailedRecord })
+});
 }
 
-function resetDetailedWorkflow() {
+async function resetDetailedWorkflow() {
+  await fetch("/clear-storage", { method: "POST" });
+
   detailedRecord = null;
   detailedOriginNode = null;
   detailedMessage = null;
@@ -357,7 +377,9 @@ function resetDetailedWorkflow() {
   detailedVerification = null;
   detailedVotes = null;
 
-  document.getElementById("outInitialStorage").textContent = "Waiting for current storage.";
+  clearTask2Storage();
+
+  document.getElementById("outInitialStorage").textContent = "Storage cleared. No records stored yet.";
   document.getElementById("outCreateRecord").textContent = "Waiting for record creation.";
   document.getElementById("outFormatMessage").textContent = "Waiting for formatted message.";
   document.getElementById("outMessageInt").textContent = "Waiting for message integer calculation.";
