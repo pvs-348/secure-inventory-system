@@ -275,10 +275,10 @@ function t3ComputeHash() {
   text += "is bound to the specific query result m and the commitment value t.\n\n";
   text += "Method: Concatenate str(t) + str(m), then apply base-256 integer encoding.\n";
   text += `m (query result / quantity): ${t3MessageInt}\n\n`;
-  text += `t (aggregate commitment): ${shortValue(t3T, 30, 10)}\n\n`;
-  text += `Input string: "${shortValue(t3T, 20, 10)}" + "${t3MessageInt}"\n\n`;
+  text += `t (aggregate commitment): ${shortValue(t3T, 80)}\n\n`;
+  text += `Input string: "${shortValue(t3T, 100)}" + "${t3MessageInt}"\n\n`;
   text += `H(t, m) = textToBigIntHash(str(t) + str(m))\n\n`;
-  text += `Hash Value:\n${shortValue(t3Hash)}`;
+  text += `Hash Value:\n${shortValue(t3Hash, 100)}`;
 
   out.textContent = text;
 }
