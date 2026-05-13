@@ -10,6 +10,7 @@
 
 <body>
 
+  <!-- HEADER -->
   <header class="topbar">
     <div class="header-left">
       <h1>Secure DLT-Based Inventory Management System</h1>
@@ -23,24 +24,26 @@
 
   <main>
 
+    <!-- ABOUT CARD -->
     <section class="card workflow-intro-card">
       <h2>About This Workflow</h2>
       <p>
         This page demonstrates the complete secure query lifecycle based on the
         <strong>Harn Identity-Based Multi-Signature scheme</strong> and <strong>RSA encryption</strong>.
-        When the Procurement Officer(PO) queries the quantity of an inventory item,
+        When the Procurement Officer (PO) queries the quantity of an inventory item,
         all four inventory nodes jointly sign the result using Harn multi-signature.
         The PKG verifies the signature and encrypts the result using the Procurement Officer's public key.
         The PO then decrypts and independently verifies the response.
       </p>
       <p class="warning-note">
-        Run the steps from top to bottom, each step depends on the previous one.
+        Run the steps from top to bottom — each step depends on the previous one.
         Records must be added via Task 1+2 before querying here.
       </p>
       <button onclick="window.location.href='home.html'">Back to Home Page</button>
       <button onclick="resetTask3()">Reset All</button>
     </section>
 
+    <!-- CURRENT INVENTORY CARD -->
     <section class="card">
       <h2>Current Inventory State</h2>
       <p class="step-explanation">
@@ -51,6 +54,7 @@
       <pre id="outT3Inventory" class="step-output">Waiting for inventory check.</pre>
     </section>
 
+    <!-- QUERY INPUT CARD -->
     <section class="card">
       <h2>Query Input</h2>
       <p class="step-explanation">
@@ -61,6 +65,7 @@
       <input id="queryItemId" type="text" value="001" style="max-width: 300px;" />
     </section>
 
+    <!-- WORKFLOW STEPS -->
     <section class="workflow-steps">
 
       <!-- STEP 1 -->
@@ -71,7 +76,7 @@
         </div>
         <p class="step-explanation">
           The Procurement Officer submits the query to the PKG.
-          The PKG forwards it to all inventory nodes which search their local records.
+          The PKG forwards it to all inventory nodes, which search their local records.
           A consistency check confirms all nodes agree on the result.
           The quantity value becomes the message <strong>m</strong> that will be signed and encrypted.
         </p>
@@ -105,7 +110,8 @@
           The PKG generates a secret key for each inventory node by signing their
           identity with the PKG private key.
           Formula: <strong>g<sub>i</sub> = ID<sub>i</sub><sup>d_pkg</sup> mod n_pkg</strong>.
-          Each node's identity from the List of Keys (126, 127, 128, 129) acts as their public key in the Harn scheme.
+          Each node's identity from the List of Keys (A=126, B=127, C=128, D=129)
+          acts as their public key in the Harn scheme.
           The secret key g<sub>i</sub> is sent privately to each node by the PKG.
         </p>
         <button onclick="t3GenerateSecretKeys()">Generate Secret Keys</button>
@@ -172,11 +178,12 @@
         <p class="step-explanation">
           After all inventory nodes compute their partial signatures, the PKG checks that
           every node arrived at the <strong>same aggregate {t, s}</strong> values.<br><br>
-          This is the consensus step for Task 3. Here all nodes run the <strong>same deterministic math</strong> with the same inputs 
+          This is the consensus step for Task 3. Unlike Task 2 (where nodes vote ACCEPT/REJECT),
+          here all nodes run the <strong>same deterministic math</strong> with the same inputs —
           so their results must be identical if everyone is honest.<br><br>
           The PKG compares each node's submitted {t, s} side by side.
-          If any node's values differ that node has cheated or made an error and is rejected.
-          If all 4 nodes agree then only the PKG proceed to cryptographic verification.
+          If any node's values differ, that node has cheated or made an error and is rejected.
+          Only if all 4 nodes agree does the PKG proceed to cryptographic verification.
         </p>
         <button onclick="t3ConsensusCheck()">Run Consensus Check</button>
         <pre id="outT3ConsensusCheck" class="step-output">Waiting for consensus check.</pre>
@@ -189,7 +196,7 @@
           <h3>PKG: Multi-Signature Verification</h3>
         </div>
         <p class="step-explanation">
-          Once consensus passes the PKG cryptographically verifies the multi-signature
+          Once consensus passes, the PKG cryptographically verifies the multi-signature
           using the PKG public key. This proves all 4 nodes signed correctly.<br><br>
           <strong>LHS: s<sup>e_pkg</sup> mod n_pkg</strong><br>
           <strong>RHS: (ID<sub>A</sub> × ID<sub>B</sub> × ID<sub>C</sub> × ID<sub>D</sub>) × t<sup>H(t,m)</sup> mod n_pkg</strong><br><br>
@@ -207,8 +214,8 @@
         </div>
         <p class="step-explanation">
           The PKG encrypts the approved query result using the Procurement Officer's <strong>PUBLIC key</strong>.
-          Formula: <strong>c = m<sup>e_po</sup> mod n_po</strong>.
-          Only PO who holds the matching private key can decrypt this ciphertext.
+          Formula: <strong>Enc(m, PK_PO) = m<sup>e_po</sup> mod n_po</strong>.
+          Only the PO — who holds the matching private key — can decrypt this ciphertext.
           The PKG sends the package <strong>{ Enc(m, PK_PO), t, s }</strong> to the Procurement Officer.
         </p>
         <button onclick="t3EncryptResult()">Encrypt Result</button>
@@ -219,30 +226,43 @@
       <article class="workflow-step-card">
         <div class="step-head">
           <span>10</span>
-          <h3>Procurement Officer: Decrypt and Verify</h3>
+          <h3>Procurement Officer: Decrypt Result</h3>
         </div>
         <p class="step-explanation">
-          The Procurement Officer uses their <strong>private key</strong> to decrypt 
-          the ciphertext: <strong>m = c<sup>d_po</sup> mod n_po</strong>.
-          The PO then independently verifies the multi-signature by running the same verification equation:<br><br>
-          <strong>LHS: s<sup>e_pkg</sup> mod n_pkg</strong><br>
-          <strong>RHS: (ID<sub>A</sub> × ID<sub>B</sub> × ID<sub>C</sub> × ID<sub>D</sub>) × t<sup>H(t,m)</sup> mod n_pkg</strong><br><br>
-          If LHS equals RHS, the PO confirms the result was collectively approved by all 4 inventory nodes.
+          The Procurement Officer uses their <strong>private key</strong> to decrypt
+          the ciphertext received from the PKG.<br><br>
+          Formula: <strong>m = c<sup>d_po</sup> mod n_po</strong>
         </p>
-        <button onclick="t3DecryptAndVerify()">Decrypt and Verify</button>
-        <pre id="outT3Decrypt" class="step-output">Waiting for decryption and verification.</pre>
+        <button onclick="t3DecryptResult()">Decrypt Result</button>
+        <pre id="outT3Decrypt" class="step-output">Waiting for decryption.</pre>
+      </article>
+
+      <!-- STEP 11 -->
+      <article class="workflow-step-card">
+        <div class="step-head">
+          <span>11</span>
+          <h3>Procurement Officer: Verify Multi-Signature</h3>
+        </div>
+        <p class="step-explanation">
+          The PO independently verifies the multi-signature using the PKG public key —
+          same equation as Step 8 run again on the PO side.<br><br>
+          <strong>LHS: s<sup>e_pkg</sup> mod n_pkg</strong><br>
+          <strong>RHS: (ID<sub>A</sub> × ID<sub>B</sub> × ID<sub>C</sub> × ID<sub>D</sub>)
+          × t<sup>H(t,m)</sup> mod n_pkg</strong><br><br>
+          If LHS equals RHS, the result is confirmed as authentic and the PO trusts the response.
+        </p>
+        <button onclick="t3POVerify()">Verify Multi-Signature</button>
+        <pre id="outT3POVerify" class="step-output">Waiting for verification.</pre>
       </article>
 
     </section>
   </main>
-
   <!-- Load utils.js first (provides modExp, modInverse, gcd, textToBigIntHash, shortValue) -->
   <script src="/src/utils.js"></script>
   <!-- Task 3 crypto logic (Harn multi-sig + RSA encryption/decryption) -->
   <script src="/src/task3.js"></script>
-  <!-- Task 3 UI step functions -->
+  <!-- Task 3 UI step functions --> 
   <script src="/src/mainPart2.js"></script>
 
 </body>
 </html>
-
