@@ -71,6 +71,28 @@ app.post("/clear-storage", (req, res) => {
   res.json({ success: true });
 });
 
+app.get("/query-item", (req, res) => {
+  const { itemId } = req.query;
+
+  if (!itemId) {
+    return res.status(400).json({
+      success: false,
+      error: "itemId query parameter is required. Example: /query-item?itemId=001"
+    });
+  }
+
+  const result = {};
+
+  ["A", "B", "C", "D"].forEach(node => {
+    const records = readWarehouse(node);
+    const found = records.find(r => r.itemId === itemId);
+    result[node] = found || null;
+  });
+
+  res.json(result);
+});
+
 app.listen(3000, () => {
   console.log("Server running at http://localhost:3000");
 });
+
