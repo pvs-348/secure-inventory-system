@@ -447,9 +447,9 @@ function t3PKGVerify() {
   out.textContent = text;
 }
 
-// STEP 8: RSA Encryption by PKG
+// STEP 9: RSA Encryption by PKG
 // The PKG encrypts the approved query result using the PO's PUBLIC key.
-// Formula: c = m^e_po mod n_po
+// Formula: Enc(m, PK_PO) = m^e_po mod n_po
 function t3EncryptResult() {
   const out = document.getElementById("outT3Encrypt");
 
@@ -468,50 +468,39 @@ function t3EncryptResult() {
   let text = "RSA ENCRYPTION BY PKG\n\n";
   text += "The PKG encrypts the approved query result using the Procurement Officer's PUBLIC key.\n";
   text += "This ensures only the PO (who holds the private key) can read the result.\n\n";
-  text += "Formula: c = m^e_po mod n_po\n\n";
+  text += "Formula: Enc(m, PK_PO) = m^e_po mod n_po\n\n";
   text += `Original query result (quantity): m = ${t3MessageInt}\n\n`;
   text += `PO Public Key:\n`;
   text += `  e_po = ${t3POKeys.e}\n`;
   text += `  n_po = ${shortValue(t3POKeys.n)}\n\n`;
-  text += `Ciphertext:\n`;
-  text += `c = ${t3MessageInt}^e_po mod n_po\n`;
-  text += `c = ${shortValue(t3Ciphertext)}\n\n`;
+  text += `Enc(m, PK_PO) = ${t3MessageInt}^e_po mod n_po\n`;
+  text += `             = ${shortValue(t3Ciphertext)}\n\n`;
   text += "--------------------------------------\n\n";
   text += "PKG sends the following package to the Procurement Officer:\n";
-  text += `  { ciphertext c, multi-signature t, multi-signature s }\n\n`;
-  text += `  c = ${shortValue(t3Ciphertext, 30, 10)}\n`;
-  text += `  t = ${shortValue(t3T, 30, 10)}\n`;
-  text += `  s = ${shortValue(t3S, 30, 10)}\n\n`;
+  text += `  { Enc(m, PK_PO), t, s }\n\n`;
+  text += `  Enc(m, PK_PO) = ${shortValue(t3Ciphertext, 30, 10)}\n`;
+  text += `  t             = ${shortValue(t3T, 30, 10)}\n`;
+  text += `  s             = ${shortValue(t3S, 30, 10)}\n\n`;
   text += "The ciphertext protects confidentiality.\n";
   text += "The multi-signature {t, s} allows the PO to verify authenticity and integrity.";
 
   out.textContent = text;
 }
 
-// STEP 9: PO Decryption and Multi-Signature Verification
-// The Procurement Officer decrypts the ciphertext and independently verifies the multi-signature using the PKG's public key.
-function t3DecryptAndVerify() {
+// STEP 10: PO Decrypts the ciphertext using their private key
+// Formula: m = c^d_po mod n_po
+function t3DecryptResult() {
   const out = document.getElementById("outT3Decrypt");
 
   if (!t3Ciphertext) {
-    out.textContent = "ERROR: Encrypt the result first (Step 8).";
+    out.textContent = "ERROR: Encrypt the result first (Step 9).";
     return;
   }
 
-  // PO decrypts the ciphertext using their private key
   t3Decrypted = decryptByPO(t3Ciphertext, t3POKeys);
-
-  // PO independently verifies the multi-signature using PKG's public key
-  // PO recomputes the hash from the decrypted m and the t received from PKG
-  const poHash = computeHarnHash(t3T, t3Decrypted);
-  const poVerification = verifyHarnMultiSig(t3PKGKeys, t3T, t3S, poHash);
-
   const decryptCorrect = t3Decrypted === t3MessageInt;
-  const overallValid   = decryptCorrect && poVerification.isValid;
 
-  let text = "PROCUREMENT OFFICER: DECRYPTION AND VERIFICATION\n\n";
-
-  text += "1. RSA DECRYPTION\n";
+  let text = "RSA DECRYPTION BY PO\n\n";
   text += "The PO uses their PRIVATE key to decrypt the ciphertext.\n";
   text += "Formula: m = c^d_po mod n_po\n\n";
   text += `Ciphertext received: c = ${shortValue(t3Ciphertext)}\n\n`;
@@ -519,11 +508,26 @@ function t3DecryptAndVerify() {
   text += `Decrypted result:\n`;
   text += `m = c^d_po mod n_po\n`;
   text += `m = ${t3Decrypted}\n\n`;
-  text += `Decryption matches original: ${decryptCorrect}\n\n`;
+  text += `Decryption correct: ${decryptCorrect}`;
 
-  text += "--------------------------------------\n\n";
+  out.textContent = text;
+}
 
-  text += "2. MULTI-SIGNATURE VERIFICATION BY PO\n";
+// STEP 11: PO independently verifies the multi-signature using PKG public key
+// Same equation as Step 8, run again on the PO side
+function t3POVerify() {
+  const out = document.getElementById("outT3POVerify");
+
+  if (!t3Decrypted) {
+    out.textContent = "ERROR: Decrypt the result first (Step 10).";
+    return;
+  }
+
+  const poHash         = computeHarnHash(t3T, t3Decrypted);
+  const poVerification = verifyHarnMultiSig(t3PKGKeys, t3T, t3S, poHash);
+  const overallValid   = t3Decrypted === t3MessageInt && poVerification.isValid;
+
+  let text = "MULTI-SIGNATURE VERIFICATION BY PO\n\n";
   text += "The PO independently runs the same verification equation as the PKG (Step 8).\n";
   text += "The PO only needs the PKG PUBLIC key - no PKG private key required.\n\n";
   text += "Step 1 - Recompute hash using received t and decrypted m:\n";
@@ -546,7 +550,7 @@ function t3DecryptAndVerify() {
 
   text += "--------------------------------------\n\n";
 
-  text += "3. FINAL RESULT\n\n";
+  text += "FINAL RESULT\n\n";
 
   if (overallValid) {
     text += `Query  : "What is the quantity of Item ID '${t3QueryItemId}'?"\n\n`;
@@ -558,7 +562,6 @@ function t3DecryptAndVerify() {
     text += "Multi-signature independently verified by PO (authenticity confirmed)\n";
   } else {
     text += "VERIFICATION FAILED.\n";
-    if (!decryptCorrect) text += "  Decryption did not recover the original message.\n";
     if (!poVerification.isValid) text += "  Multi-signature verification failed at PO side.\n";
   }
 
@@ -582,15 +585,16 @@ function resetTask3() {
   t3Ciphertext   = null;
   t3Decrypted    = null;
 
-  document.getElementById("outT3Inventory").textContent    = "Waiting for inventory check.";
-  document.getElementById("outT3Query").textContent        = "Waiting for query submission.";
-  document.getElementById("outT3PKGKeys").textContent      = "Waiting for key derivation.";
-  document.getElementById("outT3SecretKeys").textContent   = "Waiting for secret key generation.";
-  document.getElementById("outT3TValues").textContent      = "Waiting for t value computation.";
-  document.getElementById("outT3Hash").textContent         = "Waiting for hash computation.";
-  document.getElementById("outT3PartialSigs").textContent  = "Waiting for partial signature computation.";
+  document.getElementById("outT3Inventory").textContent      = "Waiting for inventory check.";
+  document.getElementById("outT3Query").textContent          = "Waiting for query submission.";
+  document.getElementById("outT3PKGKeys").textContent        = "Waiting for key derivation.";
+  document.getElementById("outT3SecretKeys").textContent     = "Waiting for secret key generation.";
+  document.getElementById("outT3TValues").textContent        = "Waiting for t value computation.";
+  document.getElementById("outT3Hash").textContent           = "Waiting for hash computation.";
+  document.getElementById("outT3PartialSigs").textContent    = "Waiting for partial signature computation.";
   document.getElementById("outT3ConsensusCheck").textContent = "Waiting for consensus check.";
-  document.getElementById("outT3Verify").textContent       = "Waiting for verification.";
-  document.getElementById("outT3Encrypt").textContent      = "Waiting for encryption.";
-  document.getElementById("outT3Decrypt").textContent      = "Waiting for decryption and verification.";
+  document.getElementById("outT3Verify").textContent         = "Waiting for verification.";
+  document.getElementById("outT3Encrypt").textContent        = "Waiting for encryption.";
+  document.getElementById("outT3Decrypt").textContent        = "Waiting for decryption.";
+  document.getElementById("outT3POVerify").textContent       = "Waiting for verification.";
 }
