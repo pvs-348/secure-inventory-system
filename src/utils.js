@@ -239,3 +239,15 @@ function getMessageConversionSteps(text) {
     steps
   };
 }
+
+// converts a BigInt back to a readable string
+function big_integer_to_sentence(bigInt) {
+  const hex = bigInt.toString(16);
+  const paddedHex = hex.padStart(Math.ceil(hex.length / 2) * 2, '0');
+  let result = '';
+  for (let i = 0; i < paddedHex.length; i += 2) {
+    const code = parseInt(paddedHex.slice(i, i + 2), 16);
+    result += String.fromCharCode(code);
+  }
+  return result;
+}

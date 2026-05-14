@@ -47,7 +47,7 @@
       <h2>Current Inventory State</h2>
       <p class="step-explanation">
         Shows the current records stored across all inventory nodes.
-        Use this to find a valid Item ID to query. Records are added via Task 1+2.
+        Use this to find a valid Item ID to query. Records are added via Task 1+2. You can also use the "Show Demo Inventory" button to populate all nodes with the same demo record for testing.
       </p>
       <button onclick="t3ShowInventory()">Show Current Inventory</button>
       <button onclick="t3ShowDemoInventory()">Show Demo Inventory</button>
@@ -77,7 +77,7 @@
         </div>
         <p class="step-explanation">
           The Procurement Officer submits the query to the PKG.
-          The PKG forwards it to all inventory nodes, which search their local records.
+          The PKG forwards it to all inventory nodes which search their local records.
           A consistency check confirms all nodes agree on the result.
           The quantity value becomes the message <strong>m</strong> that will be signed and encrypted.
         </p>
@@ -92,10 +92,8 @@
           <h3>PKG and PO Key Derivation</h3>
         </div>
         <p class="step-explanation">
-          Derives RSA parameters for both the PKG and the Procurement Officer
-          using the hardcoded values from the List of Keys document.
-          Computes <strong>n = p × q</strong>, <strong>phi(n) = (p-1)(q-1)</strong>,
-          and the private key <strong>d = e<sup>-1</sup> mod phi(n)</strong> for each party.
+          Derives RSA parameters for both the PKG and the Procurement Officer using the hardcoded values from the List of Keys document.<br>
+          Computes <strong>n = p × q</strong>, <strong>phi(n) = (p-1)(q-1)</strong> and the private key <strong>d = e<sup>-1</sup> mod phi(n)</strong> for each party.
         </p>
         <button onclick="t3DeriveKeys()">Derive Keys</button>
         <pre id="outT3PKGKeys" class="step-output">Waiting for key derivation.</pre>
@@ -179,12 +177,11 @@
         <p class="step-explanation">
           After all inventory nodes compute their partial signatures, the PKG checks that
           every node arrived at the <strong>same aggregate {t, s}</strong> values.<br><br>
-          This is the consensus step for Task 3. Unlike Task 2 (where nodes vote ACCEPT/REJECT),
-          here all nodes run the <strong>same deterministic math</strong> with the same inputs —
+          Here all nodes run the <strong>same deterministic math</strong> with the same inputs 
           so their results must be identical if everyone is honest.<br><br>
           The PKG compares each node's submitted {t, s} side by side.
           If any node's values differ, that node has cheated or made an error and is rejected.
-          Only if all 4 nodes agree does the PKG proceed to cryptographic verification.
+          Only if all 4 nodes agree then only PKG proceed to cryptographic verification.
         </p>
         <button onclick="t3ConsensusCheck()">Run Consensus Check</button>
         <pre id="outT3ConsensusCheck" class="step-output">Waiting for consensus check.</pre>
@@ -215,9 +212,9 @@
         </div>
         <p class="step-explanation">
           The PKG encrypts the approved query result using the Procurement Officer's <strong>PUBLIC key</strong>.
-          Formula: <strong>Enc(m, PK_PO) = m<sup>e_po</sup> mod n_po</strong>.
-          Only the PO — who holds the matching private key — can decrypt this ciphertext.
-          The PKG sends the package <strong>{ Enc(m, PK_PO), t, s }</strong> to the Procurement Officer.
+          Formula: <strong>Enc(c) = m<sup>e_po</sup> mod n_po</strong>.
+          Only the PO who holds the matching private key can decrypt this ciphertext.
+          The PKG sends the package <strong>{ Enc(c), t, s }</strong> to the Procurement Officer.
         </p>
         <button onclick="t3EncryptResult()">Encrypt Result</button>
         <pre id="outT3Encrypt" class="step-output">Waiting for encryption.</pre>
@@ -245,12 +242,12 @@
           <h3>Procurement Officer: Verify Multi-Signature</h3>
         </div>
         <p class="step-explanation">
-          The PO independently verifies the multi-signature using the PKG public key —
-          same equation as Step 8 run again on the PO side.<br><br>
+          The PO independently verifies the multi-signature using the PKG public key to ensure the result is authentic and untampered.
+           The PO runs the same equation as Step 8 run again on the PO side.<br><br>
           <strong>LHS: s<sup>e_pkg</sup> mod n_pkg</strong><br>
           <strong>RHS: (ID<sub>A</sub> × ID<sub>B</sub> × ID<sub>C</sub> × ID<sub>D</sub>)
           × t<sup>H(t,m)</sup> mod n_pkg</strong><br><br>
-          If LHS equals RHS, the result is confirmed as authentic and the PO trusts the response.
+          If LHS equals RHS the result is confirmed as authentic and the PO trusts the response.
         </p>
         <button onclick="t3POVerify()">Verify Multi-Signature</button>
         <pre id="outT3POVerify" class="step-output">Waiting for verification.</pre>
