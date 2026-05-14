@@ -29,14 +29,13 @@
       <h2>About This Workflow</h2>
       <p>
         This page demonstrates the complete secure query lifecycle based on the
-        <strong>Harn Identity-Based Multi-Signature scheme</strong> and <strong>RSA encryption</strong>.
-        When the Procurement Officer (PO) queries the quantity of an inventory item,
-        all four inventory nodes jointly sign the result using Harn multi-signature.
-        The PKG verifies the signature and encrypts the result using the Procurement Officer's public key.
-        The PO then decrypts and independently verifies the response.
+        <strong>Harn Identity-Based Multi-Signature scheme and RSA encryption. These are the following steps taken:</strong>.
+        query submission, key derivation, secret key generation, t value computation,
+        hash computation, partial signature generation, consensus check,
+        multi-signature verification, RSA encryption, RSA decryption and final verification.
       </p>
       <p class="warning-note">
-        Run the steps from top to bottom — each step depends on the previous one.
+        Run the steps from top to bottom each step depends on the previous one.
         Records must be added via Task 1+2 before querying here.
       </p>
       <button onclick="window.location.href='home.html'">Back to Home Page</button>

@@ -92,6 +92,21 @@ app.get("/query-item", (req, res) => {
   res.json(result);
 });
 
+app.post("/load-demo", (req, res) => {
+  const demoRecords = [
+    { itemId: "001", itemQty: "32", itemPrice: "12", location: "D" },
+    { itemId: "002", itemQty: "20", itemPrice: "14", location: "C" },
+    { itemId: "003", itemQty: "22", itemPrice: "16", location: "B" },
+    { itemId: "004", itemQty: "12", itemPrice: "18", location: "A" }
+  ];
+
+  ["A", "B", "C", "D"].forEach(node => {
+    writeWarehouse(node, demoRecords);
+  });
+
+  res.json({ success: true });
+});
+
 app.listen(3000, () => {
   console.log("Server running at http://localhost:3000");
 });
