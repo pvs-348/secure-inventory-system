@@ -1,14 +1,1 @@
-[
-  {
-    "itemId": "001",
-    "itemQty": "1",
-    "itemPrice": "11",
-    "location": "A"
-  },
-  {
-    "itemId": "0030",
-    "itemQty": "1",
-    "itemPrice": "11",
-    "location": "A"
-  }
-]
+[]

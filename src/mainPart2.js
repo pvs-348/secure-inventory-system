@@ -568,6 +568,77 @@ function t3POVerify() {
   out.textContent = text;
 }
 
+// Loads demo records into all 4 nodes then displays them
+async function t3ShowDemoInventory() {
+  const out = document.getElementById("outT3Inventory");
+  out.textContent = "Loading demo inventory...";
+
+  t3QueryItemId  = null;
+  t3QueryResult  = null;
+  t3MessageInt   = null;
+  t3PKGKeys      = null;
+  t3POKeys       = null;
+  t3SecretKeys   = null;
+  t3TValues      = null;
+  t3T            = null;
+  t3Hash         = null;
+  t3PartialSigs  = null;
+  t3S            = null;
+  t3Verification = null;
+  t3Ciphertext   = null;
+  t3Decrypted    = null;
+
+  document.getElementById("outT3Query").textContent          = "Waiting for query submission.";
+  document.getElementById("outT3PKGKeys").textContent        = "Waiting for key derivation.";
+  document.getElementById("outT3SecretKeys").textContent     = "Waiting for secret key generation.";
+  document.getElementById("outT3TValues").textContent        = "Waiting for t value computation.";
+  document.getElementById("outT3Hash").textContent           = "Waiting for hash computation.";
+  document.getElementById("outT3PartialSigs").textContent    = "Waiting for partial signature computation.";
+  document.getElementById("outT3ConsensusCheck").textContent = "Waiting for consensus check.";
+  document.getElementById("outT3Verify").textContent         = "Waiting for verification.";
+  document.getElementById("outT3Encrypt").textContent        = "Waiting for encryption.";
+  document.getElementById("outT3Decrypt").textContent        = "Waiting for decryption.";
+  document.getElementById("outT3POVerify").textContent       = "Waiting for verification.";
+
+  try {
+    await fetch("/load-demo", { method: "POST" });
+
+    const res  = await fetch("/storage");
+    const data = await res.json();
+
+    let text = "DEMO INVENTORY LOADED\n\n";
+    text += "Demo records have been written to all 4 inventory nodes.\n";
+    text += "You can now query any of these Item IDs directly.\n\n";
+
+    for (const [node, records] of Object.entries(data)) {
+      text += `Inventory ${node} Local Records:\n`;
+      records.forEach((r, i) => {
+        text += `  ${i + 1}. Item ID: ${r.itemId}, Qty: ${r.itemQty}, Price: ${r.itemPrice}, Location: ${r.location}\n`;
+      });
+      text += "\n";
+    }
+
+    out.textContent = text;
+
+  } catch (err) {
+    out.textContent = "ERROR: Could not load demo inventory.\n\n" + err.message;
+  }
+}
+
+
+// Permanently deletes all records from all 4 nodes on the server
+async function t3DeleteInventory() {
+  const out = document.getElementById("outT3Inventory");
+
+  try {
+    await fetch("/clear-storage", { method: "POST" });
+    out.textContent = "All inventory records have been deleted.\nNo records stored in any node.";
+
+  } catch (err) {
+    out.textContent = "ERROR: Could not delete records.\n\n" + err.message;
+  }
+}
+
 // RESET — clears all state and output boxes
 function resetTask3() {
   t3QueryItemId  = null;
