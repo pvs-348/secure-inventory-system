@@ -175,26 +175,6 @@ function textToBigIntHash(text) {
 }
 
 
-// this is just a helper for displaying big numbers in the UI
-// crypto numbers are like 100+ digits long which is unreadable
-// so this shows the first few digits, then "...", then the last few digits
-// e.g. "12345678901234567890" might show as "123456789 ... 7890"
-function shortValue(value, start = 45, end = 45) {
-  const text = value.toString();
-
-  // if the number is already short enough then just show the whole thing
-  if (text.length <= start + end + 10) {
-    return text;
-  }
-
-  // cut out the middle part and put "..." in between
-  const beginning = text.slice(0, start);
-  const ending = text.slice(-end);
-
-  return `${beginning} ... ${ending}`;
-}
-
-
 // this does the same thing as textToBigIntHash above
 // but instead of just returning the final number it saves every single step
 // so we can show the working in the UI like a step by step table
