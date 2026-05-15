@@ -25,7 +25,7 @@ let t3Decrypted     = null;   // PO's decrypted result
 
 
 
-// STEP 0: Show Current Inventory
+// Show Current Inventory
 // Fetches all records from the server and displays them.
 // The PO uses this to decide what to query.
 async function t3ShowInventory() {
@@ -308,37 +308,87 @@ function t3ComputePartialSigs() {
 function t3ConsensusCheck() {
   const out = document.getElementById("outT3ConsensusCheck");
 
-  if (!t3S) {
+  // Step 7 should only run after the partial signatures and aggregate signature are made.
+  if (!t3S || !t3T || !t3PartialSigs) {
     out.textContent = "ERROR: Compute partial signatures first (Step 6).";
     return;
   }
 
-  // In this scheme every node computes the same aggregate t and s
-  // because all inputs (t_i values, s_i values) are shared between nodes.
-  // The PKG simply confirms each node submitted identical {t, s}.
-  const allAgreeOnT = true;   // deterministic (all nodes compute same t)
-  const allAgreeOnS = true;   // deterministic (all nodes compute same s)
-  const consensusPassed = allAgreeOnT && allAgreeOnS;
+  // This is the aggregate signature calculated in Step 6.
+  // All nodes should agree on these same values.
+  const finalT = t3T;
+  const finalS = t3S;
 
-  let text = "PKG CONSENSUS CHECK\n\n";
+  const nodes = ["A", "B", "C", "D"];
+  const reports = [];
 
-  text += "AGGREGATE t (all nodes must agree on this value):\n";
-  for (const node of ["A", "B", "C", "D"]) {
-    text += `  Inventory ${node} reports t = ${(t3T)}\n`;
+  // Each node checks the same broadcasted multi-signature values.
+  for (const node of nodes) {
+    // Recalculate aggregate t from all t_i values.
+    let nodeT = 1n;
+    for (const ti of Object.values(t3TValues)) {
+      nodeT = (nodeT * ti) % t3PKGKeys.n;
+    }
+
+    // Recalculate aggregate s from all partial signatures s_i.
+    let nodeS = 1n;
+    for (const si of Object.values(t3PartialSigs)) {
+      nodeS = (nodeS * si) % t3PKGKeys.n;
+    }
+
+    // Hash the aggregate t with the message integer.
+    const h = computeHarnHash(nodeT, t3MessageInt);
+
+    // Verify the final Harn multi-signature.
+    const check = verifyHarnMultiSig(t3PKGKeys, nodeT, nodeS, h);
+
+    // A node accepts only if the signature is valid
+    // and its recalculated values match the final broadcast values.
+    const accepted =
+      check.isValid &&
+      nodeT === finalT &&
+      nodeS === finalS;
+
+    reports.push({
+      node: node,
+      t: nodeT,
+      s: nodeS,
+      accepted: accepted
+    });
   }
-  text += `\nAll nodes agree on t: ${allAgreeOnT ? "YES:PASS" : "NO:FAIL"}\n\n`;
-  for (const node of ["A", "B", "C", "D"]) {
-    text += `  Inventory ${node} reports s = ${(t3S)}\n`;
+
+  // PBFT-style threshold: 3 out of 4 nodes must accept.
+  let approvals = 0;
+  for (const report of reports) {
+    if (report.accepted) {
+      approvals++;
+    }
   }
-  text += `\nAll nodes agree on s: ${allAgreeOnS ? "YES:PASS" : "NO:FAIL"}\n\n`;
+
+  const threshold = 3;
+  const consensusPassed = approvals >= threshold;
+
+  let text = "CONSENSUS CHECK ON AGGREGATED MULTI-SIGNATURE\n\n";
+
+  text += "Each inventory node recalculates the aggregate t and aggregate s values.\n";
+  text += "Then each node verifies the Harn multi-signature and votes ACCEPT or REJECT.\n\n";
+
+  for (const report of reports) {
+    text += `Inventory ${report.node}:\n`;
+    text += `  recalculated t = ${report.t}\n`;
+    text += `  recalculated s = ${report.s}\n`;
+    text += `  vote = ${report.accepted ? "ACCEPT" : "REJECT"}\n\n`;
+  }
+
+  text += `Approvals: ${approvals}/4\n`;
+  text += `Required threshold: ${threshold}/4\n\n`;
 
   if (consensusPassed) {
     text += "CONSENSUS RESULT: PASS\n";
-    text += "All 4 inventory nodes submitted consistent {t, s} values.\n";
-    text += "The PKG confirms unanimous agreement. Proceeding to cryptographic verification.";
+    text += "The approved query result can now be encrypted and sent to the Procurement Officer.";
   } else {
     text += "CONSENSUS RESULT: FAIL\n";
-    text += "Nodes submitted inconsistent values. The query response is rejected.";
+    text += "The query result is rejected because not enough nodes agreed.";
   }
 
   out.textContent = text;
