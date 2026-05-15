@@ -41,14 +41,11 @@ function validateRecord(record, selectedNode) {
     return "ERROR: Invalid quantity. Quantity must be a positive number. ";
   }
 
-<<<<<<< HEAD
-=======
   // quantity must be a positive whole number, not in decimals (cant have 2.5 of an item, it has to be a whole number)
   if (!Number.isInteger(Number(record.itemQty)) || Number(record.itemQty) <= 0) {
     return "ERROR: Invalid quantity. Quantity must be a positive whole number.";
   }
 
->>>>>>> a7cac65fb1c7bcae010c40a5501f34b85aa86ac9
   // price must exist
   if (!record.itemPrice) {
     return "ERROR: Item price is missing. Enter a valid price. (You can't give free items!)";
