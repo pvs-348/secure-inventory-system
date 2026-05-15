@@ -25,7 +25,7 @@ let t3Decrypted     = null;   // PO's decrypted result
 
 
 
-// STEP 0: Show Current Inventory
+// Show Current Inventory
 // Fetches all records from the server and displays them.
 // The PO uses this to decide what to query.
 async function t3ShowInventory() {
