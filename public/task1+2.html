@@ -3,47 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- page title that shows in the browser tab -->
   <title>Task 1 + 2 Workflow</title>
+  <!-- our main stylesheet for all the styling -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
+
+  <!-- top navigation bar with the system title and our student names -->
   <header class="topbar">
+
+    <!-- left side: system name and which tasks this page covers -->
     <div class="header-left">
       <h1>Secure DLT-Based Inventory Management System</h1>
       <p>Task 1 + 2 Workflow</p>
     </div>
 
+    <!-- right side: our names and student IDs -->
     <div class="header-right">
       <p><strong>Paramvir Singh</strong> (s4122987)</p>
       <p><strong>Aayush Bhattarai</strong> (s4068259)</p>
     </div>
+
   </header>
 
   <main>
+
+    <!-- intro card explaining what this page does and the navigation buttons -->
     <section class="card workflow-intro-card">
       <h2>About our Tool</h2>
+
+      <!-- brief description of what the whole workflow does step by step -->
       <p>
         This page demonstrates the complete secure record insertion lifecycle:
         record creation, message formatting, message integer conversion, RSA signing,
         signature verification, PBFT-style voting, consensus decision and final local storage.
       </p>
 
+      <!-- warning telling the user to go in order, steps depend on each other -->
       <p class="warning-note">
         Run the buttons from top to bottom one by one as all the steps depend on the previous steps.
       </p>
 
+      <!-- button to go back to the home page -->
       <button onclick="window.location.href='home.html'">
         Back to Home Page
       </button>
 
+      <!-- button to navigate to Task 3 page -->
+      <button onclick="window.location.href='task3.html'">
+        Task 3: Multi-Signature
+      </button>
+
+      <!-- reset button clears everything and starts fresh without reloading the page -->
       <button onclick="resetDetailedWorkflow()">
         Reset All
       </button>
     </section>
 
+
+    <!-- this section shows what records are currently stored across all 4 nodes -->
+    <!-- useful to check before adding a new record and again after consensus -->
     <section class="card">
       <h2>Initial and Current Inventory State</h2>
+
       <p class="step-explanation">
         Before adding a new record, this shows the current inventory state of Warehouses A, B, C and D.
         If the page is newly loaded and no record has been accepted yet, all nodes should show empty storage.
@@ -54,9 +78,13 @@
         Show Current Inventory Storage
       </button>
 
+      <!-- output area where the storage status text gets printed -->
       <pre id="outInitialStorage" class="step-output">Waiting for current storage.</pre>
     </section>
 
+
+    <!-- this section is the input form where the user enters a new inventory record -->
+    <!-- the user also picks which node is creating/signing the record -->
     <section class="card">
       <h2>Record Input</h2>
 
@@ -65,6 +93,7 @@
         The location is editable so incorrect sender-location attempts can be demonstrated.
       </p>
 
+      <!-- dropdown to pick which inventory node (A, B, C or D) is submitting the record -->
       <label for="originNode">Originating Inventory Node</label>
       <select id="originNode">
         <option value="A">Inventory A</option>
@@ -73,30 +102,45 @@
         <option value="D">Inventory D</option>
       </select>
 
+      <!-- 4 input fields for the record data, laid out in a grid -->
       <div class="form-grid">
+
+        <!-- item ID field -->
         <div>
           <label for="itemId">Item ID</label>
           <input id="itemId" type="text" value="001" />
         </div>
 
+        <!-- item quantity field -->
         <div>
           <label for="itemQty">Item Quantity</label>
           <input id="itemQty" type="number" value="1" />
         </div>
 
+        <!-- item price field -->
         <div>
           <label for="itemPrice">Item Price</label>
           <input id="itemPrice" type="number" value="11" />
         </div>
 
+        <!-- location field: should match the selected node above (e.g. node A = location A) -->
+        <!-- we left this editable on purpose so we can demo what happens if they dont match -->
         <div>
           <label for="location">Location</label>
           <input id="location" type="text" value="A" />
         </div>
+
       </div>
     </section>
 
+
+    <!-- the 8 workflow steps, each in their own card -->
+    <!-- each step builds on the previous one so they must be run in order -->
     <section class="workflow-steps">
+
+
+      <!-- STEP 1: take the form inputs and create the record object -->
+      <!-- nothing cryptographic yet, just reading and validating the input -->
       <article class="workflow-step-card">
         <div class="step-head">
           <span>1</span>
@@ -108,9 +152,14 @@
         </p>
 
         <button onclick="step1CreateRecord()">Create Record</button>
+        <!-- output shows the created record or an error if something was wrong -->
         <pre id="outCreateRecord" class="step-output">Waiting for record creation.</pre>
       </article>
 
+
+      <!-- STEP 2: convert the record object into a plain pipe-separated string -->
+      <!-- format is: itemId|itemQty|itemPrice|location -->
+      <!-- we need a string because we cant hash an object directly -->
       <article class="workflow-step-card">
         <div class="step-head">
           <span>2</span>
@@ -123,13 +172,19 @@
         </p>
 
         <button onclick="step2FormatMessage()">Format Message</button>
+        <!-- output shows the formatted message string -->
         <pre id="outFormatMessage" class="step-output">Waiting for formatted message.</pre>
       </article>
 
+
+      <!-- STEP 3: convert the message string into a big integer -->
+      <!-- we do this manually using base-256 encoding instead of SHA-256 or MD5 -->
+      <!-- this avoids importing any external libraries which is not allowed in the assignment -->
+      <!-- the resulting number is what gets signed by RSA in the next steps -->
       <article class="workflow-step-card">
         <div class="step-head">
           <span>3</span>
-          <h3>Convert Message to Hash </h3>
+          <h3>Convert Message to Hash</h3>
         </div>
 
         <p class="step-explanation">
@@ -139,9 +194,14 @@
         </p>
 
         <button onclick="step3ConvertMessageInt()">Generate Message Integer</button>
+        <!-- output shows the step by step base-256 conversion and the final integer -->
         <pre id="outMessageInt" class="step-output">Waiting for message integer calculation.</pre>
       </article>
 
+
+      <!-- STEP 4: calculate all RSA key values from p, q, e -->
+      <!-- these are the values from the assignment's List of Keys document -->
+      <!-- we calculate n, phi, gcd, and the private key d here -->
       <article class="workflow-step-card">
         <div class="step-head">
           <span>4</span>
@@ -153,9 +213,14 @@
         </p>
 
         <button onclick="step4DeriveKeys()">Derive RSA Keys</button>
+        <!-- output shows all the derived values: n, phi, gcd, d -->
         <pre id="outRSA" class="step-output">Waiting for RSA derivation.</pre>
       </article>
 
+
+      <!-- STEP 5: sign the message integer using the private key d -->
+      <!-- formula: signature = messageInteger ^ d mod n -->
+      <!-- only the node with the correct private key can produce a valid signature -->
       <article class="workflow-step-card">
         <div class="step-head">
           <span>5</span>
@@ -167,9 +232,14 @@
         </p>
 
         <button onclick="step5SignRecord()">Sign Record</button>
+        <!-- output shows the signature number -->
         <pre id="outSign" class="step-output">Waiting for signature.</pre>
       </article>
 
+
+      <!-- STEP 6: verify the signature using the public key e -->
+      <!-- formula: recoveredHash = signature ^ e mod n -->
+      <!-- if the recovered hash matches the original, the signature is valid -->
       <article class="workflow-step-card">
         <div class="step-head">
           <span>6</span>
@@ -181,9 +251,15 @@
         </p>
 
         <button onclick="step6VerifySignature()">Verify Signature</button>
+        <!-- output shows original hash, recovered hash, and pass/fail result -->
         <pre id="outVerify" class="step-output">Waiting for verification.</pre>
       </article>
 
+
+      <!-- STEP 7: broadcast the signed record to all 4 nodes and collect their votes -->
+      <!-- this is the PBFT prepare phase - everyone independently checks the record -->
+      <!-- each node checks the signature, the data fields, and the location match -->
+      <!-- then votes ACCEPT or REJECT based on all checks passing -->
       <article class="workflow-step-card">
         <div class="step-head">
           <span>7</span>
@@ -202,9 +278,16 @@
         </p>
 
         <button onclick="step7BroadcastVotes()">Broadcast + Collect Votes</button>
+        <!-- output shows what was broadcast and how each node voted -->
         <pre id="outVotes" class="step-output">Waiting for node votes.</pre>
       </article>
 
+
+      <!-- STEP 8: count votes, decide accept or reject, and store if accepted -->
+      <!-- this is the PBFT commit phase -->
+      <!-- we need at least 3 out of 4 nodes to vote ACCEPT -->
+      <!-- this threshold comes from PBFT with 4 nodes and 1 tolerated faulty node -->
+      <!-- if accepted, the record gets saved to every node's local storage -->
       <article class="workflow-step-card">
         <div class="step-head">
           <span>8</span>
@@ -221,15 +304,25 @@
         </p>
 
         <button onclick="step8ConsensusStorage()">Run Consensus + Store</button>
+        <!-- output shows vote tally, final decision, and updated storage state -->
         <pre id="outConsensus" class="step-output">Waiting for consensus result.</pre>
       </article>
+
+
     </section>
   </main>
 
+  <!-- load our JS files at the bottom so the HTML loads first -->
+  <!-- utils.js has helper functions like modExp, gcd, textToBigIntHash etc -->
+  <!-- task1.js has the RSA signing and verification logic -->
+  <!-- task2.js has the InventoryNode and InventoryNetwork classes -->
+  <!-- mainPart1.js has all the step functions that the buttons above call -->
+  <!-- server.js handles the fetch calls to save/load records from the backend -->
   <script src="/src/utils.js"></script>
   <script src="/src/task1.js"></script>
   <script src="/src/task2.js"></script>
   <script src="/src/mainPart1.js"></script>
   <script src="/src/server.js"></script>
+
 </body>
 </html>
