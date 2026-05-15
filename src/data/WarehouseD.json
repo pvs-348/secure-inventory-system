@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "itemId": "001",
+    "itemQty": "32",
+    "itemPrice": "12",
+    "location": "D"
+  },
+  {
+    "itemId": "002",
+    "itemQty": "20",
+    "itemPrice": "14",
+    "location": "C"
+  },
+  {
+    "itemId": "003",
+    "itemQty": "22",
+    "itemPrice": "16",
+    "location": "B"
+  },
+  {
+    "itemId": "004",
+    "itemQty": "12",
+    "itemPrice": "18",
+    "location": "A"
+  }
+]

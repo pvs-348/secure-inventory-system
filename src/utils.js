@@ -174,7 +174,6 @@ function textToBigIntHash(text) {
   return hash;
 }
 
-
 // this does the same thing as textToBigIntHash above
 // but instead of just returning the final number it saves every single step
 // so we can show the working in the UI like a step by step table
