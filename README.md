@@ -46,6 +46,7 @@ This means the Procurement Officer gets a single signature that mathematically p
 ## Running it locally
 
 npm install
+
 node src/server.js
 
 
